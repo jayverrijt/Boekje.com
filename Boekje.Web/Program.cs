@@ -1,55 +1,56 @@
-using Boekje.Data.Context;
-using Boekje.Data.Repositories;
 using Boekje.Domain.Interfaces;
 using Boekje.Domain.Services;
-using Microsoft.EntityFrameworkCore;
 using Boekje.Web.Infrastructure;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// EF Core
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Connection string ophalen
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-    options.UseMySql(connectionString,
-        ServerVersion.AutoDetect(connectionString));
-});
 
-// DI
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+// Repository
+builder.Services.AddScoped<IUserRepository>(provider =>
+    new UserRepository(connectionString));
+
+// Services
 builder.Services.AddScoped<AuthService>();
+
+// HttpContext (voor CurrentUserService)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// Sessions (cookie-based)
+// Sessions (login systeem)
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromDays(7);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseSession();
-
-app.MapDefaultControllerRoute();
-
+// Error handling (production)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+// HTTPS
 app.UseHttpsRedirection();
+
+// Static files (css/js)
+app.UseStaticFiles();
+
+app.UseRouting();
+
+// Sessions (MOET vóór endpoints)
+app.UseSession();
+
+// Routing
+app.MapDefaultControllerRoute();
+
 app.Run();

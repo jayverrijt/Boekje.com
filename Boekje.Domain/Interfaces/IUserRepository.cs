@@ -4,6 +4,10 @@ namespace Boekje.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    User? GetByEmail(string email);
-    void Add(User user);
+    List<User> GetAll();
+    User GetById(int id);
+    User GetByEmail(string email);
+    int Add(User user);
+    bool Update(User user);
+    bool Delete(int id);
 }

@@ -21,6 +21,8 @@ public class AuthService
         if (existing != null) return false;
 
         var user = new User { Email = email };
+
+        // 🔐 Hash password
         user.PasswordHash = _hasher.HashPassword(user, password);
 
         _userRepository.Add(user);
@@ -30,7 +32,14 @@ public class AuthService
     public User? Login(string email, string password)
     {
         var user = _userRepository.GetByEmail(email);
-        if (user == null) return null;
+
+        // user bestaat niet
+        if (user == null)
+            return null;
+
+        // oude user zonder password (voorkomt crash)
+        if (string.IsNullOrEmpty(user.PasswordHash))
+            return null;
 
         var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
