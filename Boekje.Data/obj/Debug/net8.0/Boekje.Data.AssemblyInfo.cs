@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Boekje.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c770b29241b130f593f1171a46702b5b8d86093")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c70d11fbea0862036359c3e669f47faac5fcdd4")]
 [assembly: System.Reflection.AssemblyProductAttribute("Boekje.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Boekje.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,7 +1,16 @@
 # Binaries, Objects en User Specific Files
-bin/
-obj/
-out/
+Boekje.Data/bin/
+Boekje.Data/obj/
+Boekje.Data/out/
+
+Boekje.Web/bin/
+Boekje.Web/obj/
+Boekje.Web/out/
+
+Boekje.Domain/bin/
+Boekje.Domain/obj/
+Boekje.Domain/out/
+
 *.user
 *.suo
 *.userosscache
