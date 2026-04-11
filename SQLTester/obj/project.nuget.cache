@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "winD6qjg6no=",
+  "success": true,
+  "projectFilePath": "/Users/jayv/Projects/Boekje.com/SQLTester/SQLTester.csproj",
+  "expectedPackageFiles": [
+    "/Users/jayv/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "/Users/jayv/.nuget/packages/microsoft.extensions.logging.abstractions/8.0.2/microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "/Users/jayv/.nuget/packages/mysqlconnector/2.5.0/mysqlconnector.2.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
