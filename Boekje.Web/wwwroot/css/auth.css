@@ -1,0 +1,105 @@
+/* =========================
+   AUTH PAGE WRAPPER
+========================= */
+.auth-container {
+    min-height: calc(100vh - 100px); /* navbar height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #2f3542;
+}
+
+/* =========================
+   CARD
+========================= */
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #3b4252;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* =========================
+   TITLE
+========================= */
+.auth-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: white;
+}
+
+/* =========================
+   FORM
+========================= */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* INPUTS */
+.auth-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #555;
+    background: #2f3542;
+    color: white;
+    font-size: 14px;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #f97316;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.auth-button {
+    margin-top: 10px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 2px solid #f97316;
+    background: transparent;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-button:hover {
+    background: #f97316;
+}
+
+/* =========================
+   LINK
+========================= */
+.auth-link {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.auth-link a {
+    color: #a855f7;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   ERROR
+========================= */
+.auth-error {
+    color: #ef4444;
+    font-size: 14px;
+    text-align: center;
+}
