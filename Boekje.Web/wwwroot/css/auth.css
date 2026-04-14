@@ -1,35 +1,38 @@
 /* =========================
-   AUTH PAGE WRAPPER
+   WRAPPER
 ========================= */
 .auth-container {
-    min-height: calc(100vh - 100px); /* navbar height */
+    min-height: calc(100vh - 80px);
     display: flex;
-    justify-content: center;
     align-items: center;
-    background: #2f3542;
+    justify-content: center;
+
+    background: #3b4252;
 }
 
 /* =========================
    CARD
 ========================= */
 .auth-card {
+    background: #2f3542;
+    padding: 45px;
+    border-radius: 14px;
+
     width: 100%;
     max-width: 420px;
-    background: #3b4252;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+    box-shadow: 0 15px 40px rgba(0,0,0,0.35);
 }
 
 /* =========================
    TITLE
 ========================= */
 .auth-title {
-    text-align: center;
     font-size: 28px;
-    font-weight: 700;
     margin-bottom: 30px;
     color: white;
+    text-align: center;
+    font-weight: 600;
 }
 
 /* =========================
@@ -41,20 +44,31 @@
     gap: 18px;
 }
 
-/* INPUTS */
+/* =========================
+   INPUTS
+========================= */
 .auth-input {
-    width: 100%;
-    padding: 14px;
+    padding: 14px 16px;
+
     border-radius: 10px;
-    border: 1px solid #555;
-    background: #2f3542;
+    border: none;
+
+    background: #1f242b;
     color: white;
-    font-size: 14px;
+
+    font-size: 15px;
+
+    outline: none;
+    transition: 0.2s;
+}
+
+.auth-input::placeholder {
+    color: #9ca3af;
 }
 
 .auth-input:focus {
-    outline: none;
-    border-color: #f97316;
+    border: 1px solid #f97316;
+    box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
 }
 
 /* =========================
@@ -62,18 +76,25 @@
 ========================= */
 .auth-button {
     margin-top: 10px;
+
     padding: 14px;
-    border-radius: 12px;
+
     border: 2px solid #f97316;
+    border-radius: 12px;
+
     background: transparent;
     color: white;
+
     font-weight: 600;
+    font-size: 15px;
+
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .auth-button:hover {
     background: #f97316;
+    transform: translateY(-1px);
 }
 
 /* =========================
@@ -99,7 +120,8 @@
    ERROR
 ========================= */
 .auth-error {
-    color: #ef4444;
-    font-size: 14px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #f87171;
     text-align: center;
 }

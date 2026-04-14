@@ -1,36 +1,41 @@
-<!-- HERO (hergebruikt van site.css) -->
-<div class="hero-top">
-    <h1>Welkom bij Boekje.com</h1>
-    <h2>De automatische boekhouder</h2>
-</div>
+<link rel="stylesheet" href="~/css/about.css"/>
+<div class="page-wrapper">
 
-<!-- CONTENT -->
-<div class="about-wrapper">
-    <div class="about-container">
-
-        <!-- LEFT -->
-        <div class="about-left">
-            <div class="about-box"></div>
-            <div class="about-box"></div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="about-right">
-            <p>
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            </p>
-
-            <a asp-controller="Auth" asp-action="Register" class="about-button">
-                Register
-            </a>
-
-            <div class="about-login">
-                Al een account?
-                <a asp-controller="Auth" asp-action="Login">
-                    Klik hier om in te loggen.
-                </a>
-            </div>
-        </div>
-
+    <!-- HERO TOP -->
+    <div class="hero-top">
+        <h1>Welkom bij Boekje.com</h1>
+        <h2>De automatische boekhouder</h2>
     </div>
+
+    <!-- HERO BOTTOM -->
+    <div class="about-wrapper">
+        <div class="about-container">
+
+            <!-- LEFT -->
+            <div class="about-left">
+                <div class="about-box"></div>
+                <div class="about-box"></div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="about-right">
+                <p>
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                </p>
+
+                <a asp-controller="Auth" asp-action="Register" class="about-button">
+                    Register
+                </a>
+
+                <div class="about-login">
+                    Al een account?
+                    <a asp-controller="Auth" asp-action="Login">
+                        Klik hier om in te loggen.
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8" />
+    <title>Boekje Dashboard</title>
+
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="dashboard-navbar">
+    <div class="logo">Boekje.com</div>
+
+    <div class="menu-toggle" onclick="toggleMenu()">
+        ☰
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="sidebar">
+
+    <div class="sidebar-header">
+        <span>Menu</span>
+        <span onclick="toggleMenu()" style="cursor:pointer;">✕</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <a href="#">Home</a>
+        <a href="#">Rekening koppelen</a>
+        <a href="#">Budgets</a>
+        <a href="#">Mijn Goals</a>
+        <a href="#">Crypto</a>
+        <a asp-controller="Auth" asp-action="Logout">Uitloggen</a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div>Over Boekje.com</div>
+        <div>© Boekje.com 2026</div>
+    </div>
+
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+<!-- CONTENT -->
+<div class="dashboard-content">
+    @RenderBody()
+</div>
+
+<script>
+        function toggleMenu() {
+            document.getElementById("sidebar").classList.toggle("active");
+            document.getElementById("overlay").classList.toggle("active");
+        }
+    </script>
+
+</body>
+</html>

@@ -1,34 +1,30 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Boekje.com</title>
+
+    <!-- CSS -->
     <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/auth.css" />
-    <link rel="stylesheet" href="~/css/about.css" />
 </head>
+
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar">
     <div class="logo">Boekje.com</div>
 
     <div class="nav-links">
         <a href="/">Home</a>
         <a href="/Home/About">About</a>
-
-        @if (Context.Session.GetString("UserEmail") != null)
-        {
-            <a href="/Dashboard">Dashboard</a>
-            <a href="/Auth/Logout">Uitloggen</a>
-        }
-        else
-        {
-            <a href="/Auth/Login">Login</a>
-        }
+        <a href="/Auth/Login">Login</a>
     </div>
 </nav>
 
-<main class="container">
+<!-- PAGE CONTENT -->
+<main>
     @RenderBody()
 </main>
 

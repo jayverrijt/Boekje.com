@@ -1,22 +1,20 @@
-/* =========================
-   RESET / BASE
-========================= */
-body {
+/* RESET */
+html, body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background: #2f3542;
   color: #e5e7eb;
 }
 
-/* =========================
-   NAVBAR
-========================= */
+/* NAVBAR */
 .navbar {
-  height: 100px;
+  height: 80px;
   background: #1f242b;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 0 60px;
 }
 
@@ -28,7 +26,6 @@ body {
 
 .nav-links {
   display: flex;
-  align-items: center;
   gap: 20px;
 }
 
@@ -40,104 +37,4 @@ body {
 
 .nav-links a:hover {
   color: white;
-}
-
-/* =========================
-   HERO TOP (HEADER DEEL)
-========================= */
-.hero-top {
-  background: #3b4252;
-  text-align: center;
-  padding: 0 0 20px 0;
-}
-
-.hero-top h1 {
-  font-size: 42px;
-  margin: 0;
-  color: white;
-
-  background: #1f242b;
-  padding: 20px 0;
-  width: 100%;
-}
-
-.hero-top h2 {
-  font-size: 28px;
-  margin-top: 15px;
-  color: #d1d5db;
-}
-/* =========================
-   HERO BOTTOM (CONTENT)
-========================= */
-.hero-bottom {
-  background: #3b4252;
-  padding: 80px 0;
-}
-
-/* =========================
-   HERO CONTENT
-========================= */
-.hero {
-  max-width: 1200px;
-  margin: auto;
-  display: flex;
-  align-items: center;
-  gap: 60px;
-}
-
-.hero-left {
-  flex: 1;
-}
-
-.placeholder-box {
-  width: 100%;
-  height: 350px;
-  background: #cfcfcf;
-}
-
-.hero-right {
-  flex: 1;
-}
-
-.hero-right p {
-  line-height: 1.7;
-  color: #d1d5db;
-  max-width: 420px;
-}
-
-/* =========================
-   BUTTON
-========================= */
-.btn-primary {
-  display: inline-block;
-  margin-top: 30px;
-  padding: 14px 28px;
-  border: 2px solid #f97316;
-  border-radius: 14px;
-  text-decoration: none;
-  color: white;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: #f97316;
-  transform: translateY(-2px);
-}
-
-/* =========================
-   LOGIN LINK
-========================= */
-.login-link {
-  margin-top: 15px;
-  color: #cbd5e1;
-}
-
-.login-link a {
-  color: #a855f7;
-  text-decoration: none;
-}
-
-.login-link a:hover {
-  text-decoration: underline;
 }

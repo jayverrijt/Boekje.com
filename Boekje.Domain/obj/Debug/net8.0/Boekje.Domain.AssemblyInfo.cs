@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Boekje.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+92e718f58b212a75620e8936e65c76d4c99ce9e5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+897dfd1abeddeb93967ad6a86268f84a2017e598")]
 [assembly: System.Reflection.AssemblyProductAttribute("Boekje.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Boekje.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
