@@ -1,3 +1,4 @@
+using Boekje.Data.Repositories;
 using Boekje.Domain.Interfaces;
 using Boekje.Domain.Services;
 using Boekje.Web.Infrastructure;
@@ -19,6 +20,11 @@ builder.Services.AddScoped<AuthService>();
 // HttpContext (voor CurrentUserService)
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+builder.Services.AddScoped<ITransactionRepository>(sp =>
+    new TransactionRepository(connectionString));
+
+builder.Services.AddScoped<TransactionService>();
 
 // Sessions (login systeem)
 builder.Services.AddSession(options =>
