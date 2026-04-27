@@ -1,0 +1,127 @@
+/* =========================
+   WRAPPER
+========================= */
+.auth-container {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #3b4252;
+}
+
+/* =========================
+   CARD
+========================= */
+.auth-card {
+    background: #2f3542;
+    padding: 45px;
+    border-radius: 14px;
+
+    width: 100%;
+    max-width: 420px;
+
+    box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+}
+
+/* =========================
+   TITLE
+========================= */
+.auth-title {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: white;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* =========================
+   FORM
+========================= */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* =========================
+   INPUTS
+========================= */
+.auth-input {
+    padding: 14px 16px;
+
+    border-radius: 10px;
+    border: none;
+
+    background: #1f242b;
+    color: white;
+
+    font-size: 15px;
+
+    outline: none;
+    transition: 0.2s;
+}
+
+.auth-input::placeholder {
+    color: #9ca3af;
+}
+
+.auth-input:focus {
+    border: 1px solid #f97316;
+    box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
+}
+
+/* =========================
+   BUTTON
+========================= */
+.auth-button {
+    margin-top: 10px;
+
+    padding: 14px;
+
+    border: 2px solid #f97316;
+    border-radius: 12px;
+
+    background: transparent;
+    color: white;
+
+    font-weight: 600;
+    font-size: 15px;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-button:hover {
+    background: #f97316;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   LINK
+========================= */
+.auth-link {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #cbd5e1;
+}
+
+.auth-link a {
+    color: #a855f7;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   ERROR
+========================= */
+.auth-error {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #f87171;
+    text-align: center;
+}

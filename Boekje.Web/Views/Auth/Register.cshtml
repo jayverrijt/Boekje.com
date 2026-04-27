@@ -1,19 +1,26 @@
 @model Boekje.Web.ViewModels.RegisterViewModel
 
-<h2>Register</h2>
+<link rel="stylesheet" href="~/css/auth.css" />
+<div class="auth-container">
+    <div class="auth-card">
 
-<form method="post">
-    <div>
-        <label>Email</label>
-        <input asp-for="Email" />
+        <div class="auth-title">Registreren</div>
+
+        <form asp-action="Register" method="post" class="auth-form">
+
+            <input asp-for="Email" class="auth-input" placeholder="E-mail" />
+            <input asp-for="Password" type="password" class="auth-input" placeholder="Wachtwoord" />
+
+            <button type="submit" class="auth-button">Registreren</button>
+
+            <div class="auth-link">
+                Al een account? <a asp-action="Login">Login</a>
+            </div>
+
+            <div class="auth-error">
+                @Html.ValidationSummary()
+            </div>
+
+        </form>
     </div>
-
-    <div>
-        <label>Password</label>
-        <input asp-for="Password" type="password" />
-    </div>
-
-    <button type="submit">Register</button>
-</form>
-
-<a href="/Auth/Login">Login</a>
+</div>

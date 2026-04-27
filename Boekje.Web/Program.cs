@@ -2,6 +2,7 @@ using Boekje.Data.Repositories;
 using Boekje.Domain.Interfaces;
 using Boekje.Domain.Services;
 using Boekje.Web.Infrastructure;
+using Boekje.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+// Scopes & Services
+builder.Services.AddScoped<DashboardService>();
 
 // MVC
 builder.Services.AddControllersWithViews();
