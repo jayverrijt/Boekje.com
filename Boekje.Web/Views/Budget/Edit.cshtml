@@ -1,0 +1,7 @@
+@model dynamic
+
+@{
+    Layout = "_DashboardLayout";
+}
+
+@await Html.PartialAsync("_BudgetForm", Model, ViewData)

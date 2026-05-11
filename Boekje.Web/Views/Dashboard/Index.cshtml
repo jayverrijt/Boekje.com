@@ -1,0 +1,52 @@
+@using Boekje.Web.ViewModels
+@model DashboardViewModel
+
+@{
+    Layout = "_DashboardLayout";
+}
+<link rel="stylesheet" href="~/css/dashboard.css" />
+<div class="dashboard-wrapper">
+
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        ← @Model.Month →
+    </div>
+
+    <!-- CONTENT -->
+    <div class="dashboard-grid">
+
+        <!-- LEFT -->
+        <div class="dashboard-left"></div>
+
+        <!-- RIGHT -->
+        <div class="dashboard-cards">
+
+            <div>
+                <div class="card-title">Inkomsten</div>
+                <div class="dashboard-card">
+                    <div>€</div>
+                    <div class="card-value">@Model.Income</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card-title">Uitgaven</div>
+                <div class="dashboard-card">
+                    <div>€</div>
+                    <div class="card-value">@Model.Expenses</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card-title">Sparen</div>
+                <div class="dashboard-card">
+                    <div>€</div>
+                    <div class="card-value">@Model.Savings</div>
+                    <div>Tot. €@Model.Total</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

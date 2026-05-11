@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Boekje.Web.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Boekje.Web.Controllers;
 
@@ -27,5 +28,9 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+    public IActionResult About()
+    {
+        return View();
     }
 }

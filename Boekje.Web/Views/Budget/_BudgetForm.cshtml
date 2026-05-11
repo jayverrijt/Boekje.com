@@ -1,0 +1,226 @@
+@model Boekje.Domain.Entities.Budget
+@using System.Globalization
+
+<form method="post" action="/Budget/Save">
+
+<!-- HEADER -->
+<div class="budget-header">
+    <h2>Budget instellen</h2>
+    <button type="submit" class="btn">Opslaan</button>
+</div>
+
+<!-- INCOME -->
+<div class="form-container">
+    <div class="input-group">
+        <label>Maandinkomen (€)</label>
+        <input name="Income"
+               class="input-small"
+               type="number"
+               step="0.01"
+               placeholder="Bijv. 1500"
+               value="@(Model?.Income.ToString("0.00", CultureInfo.InvariantCulture))" />
+    </div>
+</div>
+
+<div class="budget-container">
+
+    <!-- VASTE KOSTEN -->
+    <div class="budget-column">
+        <h3>Vaste kosten</h3>
+
+        <div id="expenses" class="scroll-area">
+
+            @if (Model?.Expenses != null)
+            {
+                for (int i = 0; i < Model.Expenses.Count; i++)
+                {
+                    var e = Model.Expenses[i];
+
+                    <div class="card">
+                        <div class="row">
+
+                            <select name="Expenses[@i].Type">
+                                <option selected="@(e.Type == "Abonnement")">Abonnement</option>
+                                <option selected="@(e.Type == "Huur")">Huur</option>
+                                <option selected="@(e.Type == "Verzekering")">Verzekering</option>
+                                <option selected="@(e.Type == "Internet")">Internet</option>
+                                <option selected="@(e.Type == "Telefoon")">Telefoon</option>
+                                <option selected="@(e.Type == "Overig")">Overig</option>
+                            </select>
+
+                            <input name="Expenses[@i].Amount"
+                                   type="number"
+                                   step="0.01"
+                                   value="@e.Amount.ToString("0.00", CultureInfo.InvariantCulture)" />
+
+                            <input name="Expenses[@i].Name"
+                                   type="text"
+                                   value="@e.Name" />
+
+                            <button type="button" class="btn-danger" onclick="removeItem(this)">X</button>
+
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+
+        <div class="bottom-action">
+            <button type="button" class="btn" onclick="addExpense()">+ Toevoegen</button>
+        </div>
+    </div>
+
+    <!-- SPAREN -->
+    <div class="budget-column">
+        <h3>Sparen</h3>
+
+        <div id="savings" class="scroll-area">
+
+            @if (Model?.Savings != null)
+            {
+                for (int i = 0; i < Model.Savings.Count; i++)
+                {
+                    var s = Model.Savings[i];
+
+                    <div class="card">
+                        <div class="row">
+
+                            <input name="Savings[@i].Amount"
+                                   type="number"
+                                   step="0.01"
+                                   value="@s.Amount.ToString("0.00", CultureInfo.InvariantCulture)" />
+
+                            <input name="Savings[@i].Name"
+                                   type="text"
+                                   value="@s.Name" />
+
+                            <button type="button" class="btn-danger" onclick="removeItem(this)">X</button>
+
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+
+        <div class="bottom-action">
+            <button type="button" class="btn" onclick="addSaving()">+ Toevoegen</button>
+        </div>
+    </div>
+
+    <!-- CATEGORIEEN -->
+    <div class="budget-column">
+        <h3>Categorie budget</h3>
+
+        @{
+            var cat = ViewBag.Categories as Dictionary<string, decimal> ?? new();
+            string GetVal(string key) =>
+                cat.ContainsKey(key)
+                ? cat[key].ToString("0.00", CultureInfo.InvariantCulture)
+                : "";
+        }
+
+        <div class="scroll-area no-scroll">
+
+            <div class="input-group">
+                <label>Boodschappen</label>
+                <input name="Boodschappen" type="number" step="0.01" value="@GetVal("Boodschappen")" />
+            </div>
+
+            <div class="input-group">
+                <label>OV</label>
+                <input name="OV" type="number" step="0.01" value="@GetVal("OV")" />
+            </div>
+
+            <div class="input-group">
+                <label>Benzine</label>
+                <input name="Benzine" type="number" step="0.01" value="@GetVal("Benzine")" />
+            </div>
+
+            <div class="input-group">
+                <label>Uitgaan</label>
+                <input name="Uitgaan" type="number" step="0.01" value="@GetVal("Uitgaan")" />
+            </div>
+
+            <div class="input-group">
+                <label>Eten</label>
+                <input name="Eten" type="number" step="0.01" value="@GetVal("Eten")" />
+            </div>
+
+            <div class="input-group">
+                <label>Games</label>
+                <input name="Games" type="number" step="0.01" value="@GetVal("Games")" />
+            </div>
+
+            <div class="input-group">
+                <label>Kleding</label>
+                <input name="Kleding" type="number" step="0.01" value="@GetVal("Kleding")" />
+            </div>
+
+            <div class="input-group">
+                <label>Gezondheid</label>
+                <input name="Gezondheid" type="number" step="0.01" value="@GetVal("Gezondheid")" />
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</form>
+
+<script>
+let expenseIndex = @(Model?.Expenses?.Count ?? 0);
+let savingIndex = @(Model?.Savings?.Count ?? 0);
+
+function addExpense() {
+    const container = document.getElementById("expenses");
+
+    const div = document.createElement("div");
+    div.classList.add("card");
+
+    div.innerHTML = `
+        <div class="row">
+            <select name="Expenses[${expenseIndex}].Type">
+                <option>Abonnement</option>
+                <option>Huur</option>
+                <option>Verzekering</option>
+                <option>Internet</option>
+                <option>Telefoon</option>
+                <option>Overig</option>
+            </select>
+
+            <input name="Expenses[${expenseIndex}].Amount" type="number" step="0.01" />
+            <input name="Expenses[${expenseIndex}].Name" type="text" />
+
+            <button type="button" class="btn-danger" onclick="removeItem(this)">X</button>
+        </div>
+    `;
+
+    container.appendChild(div);
+    expenseIndex++;
+}
+
+function addSaving() {
+    const container = document.getElementById("savings");
+
+    const div = document.createElement("div");
+    div.classList.add("card");
+
+    div.innerHTML = `
+        <div class="row">
+            <input name="Savings[${savingIndex}].Amount" type="number" step="0.01" />
+            <input name="Savings[${savingIndex}].Name" type="text" />
+
+            <button type="button" class="btn-danger" onclick="removeItem(this)">X</button>
+        </div>
+    `;
+
+    container.appendChild(div);
+    savingIndex++;
+}
+
+function removeItem(button) {
+    button.closest(".card").remove();
+}
+</script>

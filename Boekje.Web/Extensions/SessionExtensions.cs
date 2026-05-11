@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Boekje.Web.Extensions;
 
 public static class SessionExtensions

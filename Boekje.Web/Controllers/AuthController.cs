@@ -1,8 +1,8 @@
+using System.Threading.Tasks;
 using Boekje.Domain.Services;
 using Boekje.Web.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-namespace Boekje.Web.Controllers;
 
 public class AuthController : Controller
 {
@@ -13,40 +13,57 @@ public class AuthController : Controller
         _authService = authService;
     }
 
+    // =========================
+    // LOGIN
+    // =========================
+    [HttpGet]
     public IActionResult Login() => View();
 
     [HttpPost]
-    public IActionResult Login(LoginViewModel vm)
+    public async Task<IActionResult> Login(LoginViewModel model)
     {
-        var user = _authService.Login(vm.Email, vm.Password);
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _authService.LoginAsync(model.Email, model.Password);
 
         if (user == null)
         {
-            ModelState.AddModelError("", "Invalid login");
-            return View(vm);
+            ModelState.AddModelError("", "Email of wachtwoord is incorrect");
+            return View(model);
         }
 
         HttpContext.Session.SetString("UserEmail", user.Email);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Dashboard");
     }
 
+    // =========================
+    // REGISTER
+    // =========================
+    [HttpGet]
     public IActionResult Register() => View();
 
     [HttpPost]
-    public IActionResult Register(RegisterViewModel vm)
+    public async Task<IActionResult> Register(RegisterViewModel model)
     {
-        var success = _authService.Register(vm.Email, vm.Password);
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var success = await _authService.RegisterAsync(model.Email, model.Password);
 
         if (!success)
         {
-            ModelState.AddModelError("", "User already exists");
-            return View(vm);
+            ModelState.AddModelError("", "Email bestaat al");
+            return View(model);
         }
 
         return RedirectToAction("Login");
     }
 
+    // =========================
+    // LOGOUT
+    // =========================
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();

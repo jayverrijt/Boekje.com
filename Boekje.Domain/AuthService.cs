@@ -7,42 +7,41 @@ namespace Boekje.Domain.Services;
 public class AuthService
 {
     private readonly IUserRepository _userRepository;
-    private readonly PasswordHasher<User> _hasher;
+    private readonly PasswordHasher<User> _passwordHasher;
 
     public AuthService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
-        _hasher = new PasswordHasher<User>();
+        _passwordHasher = new PasswordHasher<User>();
     }
 
-    public bool Register(string email, string password)
+    public async Task<User?> LoginAsync(string email, string password)
     {
-        var existing = _userRepository.GetByEmail(email);
-        if (existing != null) return false;
+        var user = await _userRepository.GetByEmailAsync(email);
 
-        var user = new User { Email = email };
-
-        // 🔐 Hash password
-        user.PasswordHash = _hasher.HashPassword(user, password);
-
-        _userRepository.Add(user);
-        return true;
-    }
-
-    public User? Login(string email, string password)
-    {
-        var user = _userRepository.GetByEmail(email);
-
-        // user bestaat niet
         if (user == null)
             return null;
 
-        // oude user zonder password (voorkomt crash)
-        if (string.IsNullOrEmpty(user.PasswordHash))
-            return null;
-
-        var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, password);
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
         return result == PasswordVerificationResult.Success ? user : null;
+    }
+
+    public async Task<bool> RegisterAsync(string email, string password)
+    {
+        var existingUser = await _userRepository.GetByEmailAsync(email);
+
+        if (existingUser != null)
+            return false;
+
+        var user = new User
+        {
+            Email = email,
+            PasswordHash = _passwordHasher.HashPassword(null, password)
+        };
+
+        await _userRepository.AddAsync(user);
+
+        return true;
     }
 }

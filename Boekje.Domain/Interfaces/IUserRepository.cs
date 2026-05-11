@@ -4,10 +4,12 @@ namespace Boekje.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    List<User> GetAll();
-    User GetById(int id);
-    User GetByEmail(string email);
-    int Add(User user);
-    bool Update(User user);
-    bool Delete(int id);
+    Task<User?> GetByEmailAsync(string email);
+    Task AddAsync(User user);
+
+    // optioneel (later)
+    Task<List<User>> GetAllAsync();
+    Task<User?> GetByIdAsync(int id);
+    Task<bool> UpdateAsync(User user);
+    Task<bool> DeleteAsync(int id);
 }
