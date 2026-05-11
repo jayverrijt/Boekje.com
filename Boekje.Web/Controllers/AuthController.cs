@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using Boekje.Domain.Services;
 using Boekje.Web.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 public class AuthController : Controller
@@ -11,6 +13,9 @@ public class AuthController : Controller
         _authService = authService;
     }
 
+    // =========================
+    // LOGIN
+    // =========================
     [HttpGet]
     public IActionResult Login() => View();
 
@@ -33,6 +38,9 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Dashboard");
     }
 
+    // =========================
+    // REGISTER
+    // =========================
     [HttpGet]
     public IActionResult Register() => View();
 
@@ -53,6 +61,9 @@ public class AuthController : Controller
         return RedirectToAction("Login");
     }
 
+    // =========================
+    // LOGOUT
+    // =========================
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();

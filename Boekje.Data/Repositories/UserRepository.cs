@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Boekje.Domain.Entities;
 using Boekje.Domain.Interfaces;
 using MySqlConnector;
@@ -19,7 +21,7 @@ public class UserRepository : IUserRepository
         await conn.OpenAsync();
 
         var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT id, email, password FROM user WHERE email = @email";
+        cmd.CommandText = "SELECT id, email, password FROM `user` WHERE email = @email";
         cmd.Parameters.AddWithValue("@email", email);
 
         using var reader = await cmd.ExecuteReaderAsync();
@@ -37,20 +39,20 @@ public class UserRepository : IUserRepository
         return null;
     }
 
+
     public async Task AddAsync(User user)
     {
         using var conn = new MySqlConnection(_connectionString);
         await conn.OpenAsync();
 
         var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO user (email, password) VALUES (@email, @password)";
+        cmd.CommandText = "INSERT INTO `user` (email, password) VALUES (@email, @password)";
         cmd.Parameters.AddWithValue("@email", user.Email);
         cmd.Parameters.AddWithValue("@password", user.PasswordHash);
 
         await cmd.ExecuteNonQueryAsync();
     }
 
-    // 👇 tijdelijke implementations (zodat build werkt)
 
     public async Task<List<User>> GetAllAsync()
     {

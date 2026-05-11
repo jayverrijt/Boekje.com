@@ -1,6 +1,7 @@
 @model Boekje.Web.ViewModels.RegisterViewModel
 
 <link rel="stylesheet" href="~/css/auth.css" />
+
 <div class="auth-container">
     <div class="auth-card">
 
@@ -9,7 +10,13 @@
         <form asp-action="Register" method="post" class="auth-form">
 
             <input asp-for="Email" class="auth-input" placeholder="E-mail" />
+            <span asp-validation-for="Email" class="auth-error"></span>
+
             <input asp-for="Password" type="password" class="auth-input" placeholder="Wachtwoord" />
+            <span asp-validation-for="Password" class="auth-error"></span>
+
+            <input asp-for="ConfirmPassword" type="password" class="auth-input" placeholder="Herhaal wachtwoord" />
+            <span asp-validation-for="ConfirmPassword" class="auth-error"></span>
 
             <button type="submit" class="auth-button">Registreren</button>
 

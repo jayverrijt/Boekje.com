@@ -2,7 +2,6 @@ using Boekje.Data.Repositories;
 using Boekje.Domain.Interfaces;
 using Boekje.Domain.Services;
 using Boekje.Web.Infrastructure;
-using Boekje.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,11 +33,19 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+
 // Scopes & Services
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<BudgetService>();
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+builder.Services.AddScoped<BudgetService>();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 // MVC
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSession();
+
 
 var app = builder.Build();
 

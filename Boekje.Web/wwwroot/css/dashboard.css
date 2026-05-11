@@ -15,6 +15,9 @@ body {
 /* =========================
    NAVBAR
 ========================= */
+.dashboard-content {
+    background-color: #434C5E;
+}
 .dashboard-navbar {
     height: 80px;
     background: #2f3542;
@@ -134,10 +137,6 @@ body {
 /* =========================
    CONTENT
 ========================= */
-.dashboard-content {
-    padding-top: 20px;
-}
-
 .dashboard-wrapper {
     background: #3b4252;
     min-height: calc(100vh - 80px);

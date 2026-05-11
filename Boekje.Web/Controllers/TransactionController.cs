@@ -13,7 +13,7 @@ public class TransactionController : Controller
     [HttpPost]
     public IActionResult Add(decimal amount, string category, string description)
     {
-        int userId = 1; // tijdelijk hardcoded
+        int userId = int.Parse(HttpContext.Session.GetString("UserId"));
 
         _service.AddExpense(userId, amount, category, description);
 

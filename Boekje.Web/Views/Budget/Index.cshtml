@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "Budget";
+    Layout = "_DashboardLayout";
+
+    var categories = new List<string>
+    {
+        "Boodschappen",
+        "Huur",
+        "Vervoer",
+        "Uitgaan",
+        "Abonnementen",
+        "Sparen"
+    };
+}
+
+<div class="budget-grid">
+
+    <!-- BANK ACCOUNTS -->
+    <div class="budget-section accounts-section">
+
+        <h2>Bank accounts</h2>
+
+        <div class="budget-box">
+
+            <div class="bank-card active">
+                <div>
+                    <strong>Hr. J.A.A. Verrijt</strong><br />
+                    NL12XXXX3456789012
+                </div>
+            </div>
+
+            <div class="bank-card warning">
+                <div>
+                    <strong>Hr. J.A.A. Verrijt</strong><br />
+                    NL12XXXX3456789012
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CATEGORIEEN -->
+    <div class="budget-section category-section">
+
+        <h2>Categorieen</h2>
+
+        <div class="budget-box">
+
+            @foreach (var category in categories)
+            {
+                <div class="category-card">
+                    @category
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+    <!-- GRAFIEK -->
+    <div class="budget-section graph-section">
+
+        <h2>Grafiek</h2>
+
+        <div class="budget-box graph-box">
+            Grafiek komt hier
+        </div>
+
+    </div>
+
+</div>
+
+<!-- SIDE MENU -->
+<div class="side-menu">
+
+    <a href="/Budget/Edit">
+        <span>✎</span>
+        <p>Edit budget</p>
+    </a>
+
+    <a href="#">
+        <span>←</span>
+        <p>Uitgaven</p>
+    </a>
+
+    <form method="post" action="/Budget/Delete" class="side-menu-form">
+        <button type="submit" class="side-menu-btn">
+            <span>-</span>
+            <p>Verwijder Budget</p>
+        </button>
+    </form>
+
+    <a href="/Budget/Add">
+        <span>+</span>
+        <p>Nieuw budget</p>
+    </a>
+
+</div>
