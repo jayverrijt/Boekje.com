@@ -3,7 +3,7 @@ using Boekje.Domain.Interfaces;
 
 namespace Boekje.Web.Infrastructure
 {
-    public class CurrentUserService : ICurrentUserService
+    public class CurrentUserService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 

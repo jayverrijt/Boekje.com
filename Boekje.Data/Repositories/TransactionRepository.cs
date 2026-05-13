@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using MySqlConnector;
 using Boekje.Domain.Entities;
 using Boekje.Domain.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace Boekje.Data.Repositories;
 
@@ -9,9 +10,14 @@ public class TransactionRepository : ITransactionRepository
 {
     private readonly string _connectionString;
 
-    public TransactionRepository(string connectionString)
+    public TransactionRepository(IConfiguration config)
     {
-        _connectionString = connectionString;
+        var conn = config.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrEmpty(conn))
+            throw new Exception("Connection string not found");
+
+        _connectionString = conn;
     }
 
     public void AddTransaction(Transaction transaction)

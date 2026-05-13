@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Boekje.Domain.Entities;
 using Boekje.Domain.Interfaces;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
@@ -10,9 +9,14 @@ public class UserRepository : IUserRepository
 {
     private readonly string _connectionString;
 
-    public UserRepository(string connectionString)
+    public UserRepository(IConfiguration config)
     {
-        _connectionString = connectionString;
+        var conn = config.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrEmpty(conn))
+            throw new Exception("Connection string not found");
+
+        _connectionString = conn;
     }
 
     public async Task<User?> GetByEmailAsync(string email)

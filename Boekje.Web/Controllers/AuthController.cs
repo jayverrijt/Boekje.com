@@ -1,8 +1,9 @@
-using System.Threading.Tasks;
 using Boekje.Domain.Services;
 using Boekje.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Boekje.Web.Controllers;
 
 public class AuthController : Controller
 {
@@ -13,11 +14,15 @@ public class AuthController : Controller
         _authService = authService;
     }
 
-    // =========================
-    // LOGIN
-    // =========================
+    /* =========================
+       LOGIN
+    ========================= */
+
     [HttpGet]
-    public IActionResult Login() => View();
+    public IActionResult Login()
+    {
+        return View();
+    }
 
     [HttpPost]
     public async Task<IActionResult> Login(LoginViewModel model)
@@ -25,48 +30,71 @@ public class AuthController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var user = await _authService.LoginAsync(model.Email, model.Password);
+        var user =
+            await _authService.LoginAsync(
+                model.Email,
+                model.Password);
 
         if (user == null)
         {
-            ModelState.AddModelError("", "Email of wachtwoord is incorrect");
+            ModelState.AddModelError(
+                "",
+                "Email of wachtwoord is incorrect");
+
             return View(model);
         }
 
-        HttpContext.Session.SetString("UserEmail", user.Email);
+        HttpContext.Session.SetString(
+            "UserEmail",
+            user.Email);
 
-        return RedirectToAction("Index", "Dashboard");
+        return RedirectToAction(
+            "Index",
+            "Dashboard");
     }
 
-    // =========================
-    // REGISTER
-    // =========================
+    /* =========================
+       REGISTER
+    ========================= */
+
     [HttpGet]
-    public IActionResult Register() => View();
+    public IActionResult Register()
+    {
+        return View();
+    }
 
     [HttpPost]
-    public async Task<IActionResult> Register(RegisterViewModel model)
+    public async Task<IActionResult> Register(
+        RegisterViewModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
 
-        var success = await _authService.RegisterAsync(model.Email, model.Password);
+        var success =
+            await _authService.RegisterAsync(
+                model.Email,
+                model.Password);
 
         if (!success)
         {
-            ModelState.AddModelError("", "Email bestaat al");
+            ModelState.AddModelError(
+                "",
+                "Email bestaat al");
+
             return View(model);
         }
 
         return RedirectToAction("Login");
     }
 
-    // =========================
-    // LOGOUT
-    // =========================
+    /* =========================
+       LOGOUT
+    ========================= */
+
     public IActionResult Logout()
     {
         HttpContext.Session.Clear();
+
         return RedirectToAction("Login");
     }
 }
