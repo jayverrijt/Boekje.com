@@ -1,52 +1,124 @@
-@using Boekje.Web.ViewModels
+@using Boekje.Web.ViewModels.Dashboard
 @model DashboardViewModel
 
 @{
     Layout = "_DashboardLayout";
 }
-<link rel="stylesheet" href="~/css/dashboard.css" />
+
+<link rel="stylesheet"
+      href="~/css/dashboard.css" />
+
 <div class="dashboard-wrapper">
 
     <!-- HEADER -->
+
     <div class="dashboard-header">
-        ← @Model.Month →
+        Dashboard
     </div>
 
     <!-- CONTENT -->
+
     <div class="dashboard-grid">
 
         <!-- LEFT -->
-        <div class="dashboard-left"></div>
+
+        <div class="dashboard-left">
+
+            @if (Model.RecentTransactions.Any())
+            {
+                <div class="transactions">
+
+                    <h3>
+                        Recente transacties
+                    </h3>
+
+                    @foreach (var transaction
+                               in Model.RecentTransactions)
+                    {
+                        <div class="transaction-item">
+
+                            <div>
+                                @transaction.Category
+                            </div>
+
+                            <div>
+                                €@transaction.Amount
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
 
         <!-- RIGHT -->
+
         <div class="dashboard-cards">
 
-            <div>
-                <div class="card-title">Inkomsten</div>
-                <div class="dashboard-card">
-                    <div>€</div>
-                    <div class="card-value">@Model.Income</div>
-                </div>
-            </div>
+            <!-- INCOME -->
 
             <div>
-                <div class="card-title">Uitgaven</div>
-                <div class="dashboard-card">
-                    <div>€</div>
-                    <div class="card-value">@Model.Expenses</div>
+
+                <div class="card-title">
+                    Inkomsten
                 </div>
+
+                <div class="dashboard-card">
+
+                    <div>€</div>
+
+                    <div class="card-value">
+                        @Model.TotalIncome
+                    </div>
+
+                </div>
+
             </div>
 
+            <!-- EXPENSES -->
+
             <div>
-                <div class="card-title">Sparen</div>
-                <div class="dashboard-card">
-                    <div>€</div>
-                    <div class="card-value">@Model.Savings</div>
-                    <div>Tot. €@Model.Total</div>
+
+                <div class="card-title">
+                    Uitgaven
                 </div>
+
+                <div class="dashboard-card">
+
+                    <div>€</div>
+
+                    <div class="card-value">
+                        @Model.TotalExpenses
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- REMAINING -->
+
+            <div>
+
+                <div class="card-title">
+                    Over
+                </div>
+
+                <div class="dashboard-card">
+
+                    <div>€</div>
+
+                    <div class="card-value">
+                        @Model.Remaining
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
 
     </div>
+
 </div>
