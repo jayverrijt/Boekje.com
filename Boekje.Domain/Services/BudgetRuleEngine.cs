@@ -1,6 +1,6 @@
 namespace Boekje.Domain.Services;
 
-public class BudgetRuleService
+public class BudgetRuleEngine
 {
     
 }
