@@ -1,59 +1,101 @@
 using Boekje.Domain.Entities;
-using Boekje.Domain.Interfaces;
 
 namespace Boekje.Domain.Services;
 
 public class BudgetService
 {
-    private readonly IBudgetRepository _repo;
+    private readonly BudgetQueryService
+        _queryService;
 
-    public BudgetService(IBudgetRepository repo)
+    private readonly BudgetCommandService
+        _commandService;
+
+    private readonly BudgetRuleEngine
+        _ruleEngine;
+
+    public BudgetService(
+        BudgetQueryService queryService,
+        BudgetCommandService commandService,
+        BudgetRuleEngine ruleEngine)
     {
-        _repo = repo;
+        _queryService =
+            queryService;
+
+        _commandService =
+            commandService;
+
+        _ruleEngine =
+            ruleEngine;
     }
 
-    public (Budget?, Dictionary<string, decimal>) GetFullBudget(int userId)
+    /*
+     * Queries
+     */
+
+    public Budget? GetByUser(
+        int userId)
     {
-        var budget = _repo.GetByUser(userId);
-
-        var categories = new Dictionary<string, decimal>();
-
-        if (budget != null)
-        {
-            categories = _repo.GetCategories(budget.Id);
-        }
-
-        return (budget, categories);
+        return _queryService
+            .GetByUser(userId);
     }
 
-    public void Save(Budget budget, Dictionary<string, decimal> categories)
+    /*
+     * Compatibility method
+     */
+
+    public Budget? GetFullBudget(
+        int userId)
     {
-        var existing = _repo.GetByUser(budget.UserId);
-
-        int budgetId;
-
-        if (existing == null)
-        {
-            budgetId = _repo.CreateBudget(budget);
-        }
-        else
-        {
-            budgetId = existing.Id;
-            _repo.DeleteByBudgetId(budgetId);
-        }
-
-        _repo.InsertExpenses(budgetId, budget.Expenses);
-        _repo.InsertSavings(budgetId, budget.Savings);
-        _repo.InsertCategories(budgetId, categories);
+        return _queryService
+            .GetByUser(userId);
     }
 
-    public bool HasBudget(int userId)
+    public bool HasBudget(
+        int userId)
     {
-        return _repo.GetByUser(userId) != null;
+        return _queryService
+            .HasBudget(userId);
     }
 
-    public void Delete(int userId)
+    /*
+     * Commands
+     */
+
+    public void Save(
+        Budget budget)
     {
-        _repo.DeleteByUserId(userId);
+        _commandService
+            .Save(budget);
+    }
+
+    /*
+     * Compatibility overload
+     */
+
+    public void Save(
+        Budget budget,
+        Dictionary<string, decimal>
+            categories)
+    {
+        _commandService
+            .Save(budget);
+    }
+
+    public void Delete(
+        int userId)
+    {
+        _commandService
+            .Delete(userId);
+    }
+
+    /*
+     * Rules / Advice
+     */
+
+    public BudgetAdvice GenerateAdvice(
+        Budget budget)
+    {
+        return _ruleEngine
+            .Generate(budget);
     }
 }

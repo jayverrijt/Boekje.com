@@ -1,4 +1,9 @@
+using Boekje.Domain.Entities;
+using Boekje.Domain.Interfaces;
+using Boekje.Domain.Rules;
+using Boekje.Domain.Services;
 using Boekje.Web.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
 
 namespace Boekje.Web;
 
@@ -23,7 +28,19 @@ public class Startup
            DEPENDENCY INJECTION
         ======================================== */
 
-        services.AddRepositories(Configuration);
+        services.AddRepositories();
+
+        services.AddScoped<
+            IPasswordHasher<User>,
+            PasswordHasher<User>>();
+
+        services.AddScoped<
+            IBudgetRule,
+            RentBudgetRule>();
+
+        services.AddScoped<
+            IBudgetRule,
+            SavingsBudgetRule>();
 
         services.AddApplicationServices();
 

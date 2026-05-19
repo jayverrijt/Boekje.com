@@ -5,76 +5,298 @@ using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository
+    : IUserRepository
 {
-    private readonly string _connectionString;
+    private readonly string
+        _connectionString;
 
-    public UserRepository(IConfiguration config)
+    public UserRepository(
+        IConfiguration configuration)
     {
-        var conn = config.GetConnectionString("DefaultConnection");
+        var connectionString =
+            configuration.GetConnectionString(
+                "DefaultConnection");
 
-        if (string.IsNullOrEmpty(conn))
-            throw new Exception("Connection string not found");
-
-        _connectionString = conn;
-    }
-
-    public async Task<User?> GetByEmailAsync(string email)
-    {
-        using var conn = new MySqlConnection(_connectionString);
-        await conn.OpenAsync();
-
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT id, email, password FROM `user` WHERE email = @email";
-        cmd.Parameters.AddWithValue("@email", email);
-
-        using var reader = await cmd.ExecuteReaderAsync();
-
-        if (await reader.ReadAsync())
+        if (string.IsNullOrWhiteSpace(
+                connectionString))
         {
-            return new User
-            {
-                Id = reader.GetInt32(0),
-                Email = reader.GetString(1),
-                PasswordHash = reader.GetString(2)
-            };
+            throw new Exception(
+                "Connection string not found.");
         }
 
-        return null;
+        _connectionString =
+            connectionString;
     }
 
-
-    public async Task AddAsync(User user)
+    public Task<User?> GetByEmailAsync(
+        string email)
     {
-        using var conn = new MySqlConnection(_connectionString);
-        await conn.OpenAsync();
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
 
-        var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO `user` (email, password) VALUES (@email, @password)";
-        cmd.Parameters.AddWithValue("@email", user.Email);
-        cmd.Parameters.AddWithValue("@password", user.PasswordHash);
+        connection.Open();
 
-        await cmd.ExecuteNonQueryAsync();
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText =
+                @"SELECT id,
+                         name,
+                         email,
+                         password
+                  FROM user
+                  WHERE email = @email";
+
+            command.Parameters.AddWithValue(
+                "@email",
+                email);
+
+            using (var reader =
+                   command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    var user =
+                        new User(
+                            reader.GetString(
+                                "name"),
+
+                            reader.GetString(
+                                "email"),
+
+                            reader.GetString(
+                                "password"));
+
+                    user.SetId(
+                        reader.GetInt32(
+                            "id"));
+
+                    return Task.FromResult<User?>(
+                        user);
+                }
+            }
+        }
+
+        return Task.FromResult<User?>(
+            null);
     }
 
-
-    public async Task<List<User>> GetAllAsync()
+    public Task AddAsync(
+        User user)
     {
-        return new List<User>();
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using var command =
+            connection.CreateCommand();
+
+        command.CommandText =
+            @"INSERT INTO user
+                (
+                    name,
+                    email,
+                    password
+                )
+              VALUES
+                (
+                    @name,
+                    @email,
+                    @password
+                )";
+
+        command.Parameters.AddWithValue(
+            "@name",
+            user.Name);
+
+        command.Parameters.AddWithValue(
+            "@email",
+            user.Email);
+
+        command.Parameters.AddWithValue(
+            "@password",
+            user.PasswordHash);
+
+        command.ExecuteNonQuery();
+
+        return Task.CompletedTask;
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public Task<List<User>>
+        GetAllAsync()
     {
-        return null;
+        var users =
+            new List<User>();
+
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText =
+                @"SELECT id,
+                         name,
+                         email,
+                         password
+                  FROM user";
+
+            using (var reader =
+                   command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var user =
+                        new User(
+                            reader.GetString(
+                                "name"),
+
+                            reader.GetString(
+                                "email"),
+
+                            reader.GetString(
+                                "password"));
+
+                    user.SetId(
+                        reader.GetInt32(
+                            "id"));
+
+                    users.Add(user);
+                }
+            }
+        }
+
+        return Task.FromResult(
+            users);
     }
 
-    public async Task<bool> UpdateAsync(User user)
+    public Task<User?> GetByIdAsync(
+        int id)
     {
-        return false;
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using (var command =
+               connection.CreateCommand())
+        {
+            command.CommandText =
+                @"SELECT id,
+                         name,
+                         email,
+                         password
+                  FROM user
+                  WHERE id = @id";
+
+            command.Parameters.AddWithValue(
+                "@id",
+                id);
+
+            using (var reader =
+                   command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    var user =
+                        new User(
+                            reader.GetString(
+                                "name"),
+
+                            reader.GetString(
+                                "email"),
+
+                            reader.GetString(
+                                "password"));
+
+                    user.SetId(
+                        reader.GetInt32(
+                            "id"));
+
+                    return Task.FromResult<User?>(
+                        user);
+                }
+            }
+        }
+
+        return Task.FromResult<User?>(
+            null);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public Task<bool> UpdateAsync(
+        User user)
     {
-        return false;
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using var command =
+            connection.CreateCommand();
+
+        command.CommandText =
+            @"UPDATE user
+              SET name = @name,
+                  email = @email,
+                  password = @password
+              WHERE id = @id";
+
+        command.Parameters.AddWithValue(
+            "@id",
+            user.Id);
+
+        command.Parameters.AddWithValue(
+            "@name",
+            user.Name);
+
+        command.Parameters.AddWithValue(
+            "@email",
+            user.Email);
+
+        command.Parameters.AddWithValue(
+            "@password",
+            user.PasswordHash);
+
+        var affected =
+            command.ExecuteNonQuery();
+
+        return Task.FromResult(
+            affected > 0);
+    }
+
+    public Task<bool> DeleteAsync(
+        int id)
+    {
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using var command =
+            connection.CreateCommand();
+
+        command.CommandText =
+            @"DELETE FROM user
+              WHERE id = @id";
+
+        command.Parameters.AddWithValue(
+            "@id",
+            id);
+
+        var affected =
+            command.ExecuteNonQuery();
+
+        return Task.FromResult(
+            affected > 0);
     }
 }

@@ -1,7 +1,11 @@
 namespace Boekje.Domain.Entities;
 
-public class Saving
+public class Saving : FinancialItem
 {
-    public decimal Amount { get; set; }
-    public string Name { get; set; } = "";
+    public Saving(
+        decimal amount,
+        string name)
+        : base(amount, name)
+    {
+    }
 }
