@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Boekje.Web.ViewModels;
+namespace Boekje.Web.ViewModels.Auth;
 
 public class RegisterViewModel
 {
