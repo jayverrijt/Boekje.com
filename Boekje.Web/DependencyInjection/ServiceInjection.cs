@@ -1,5 +1,7 @@
+using Boekje.Domain.Entities;
 using Boekje.Domain.Services;
 using Boekje.Web.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace Boekje.Web.DependencyInjection;
 
@@ -17,6 +19,10 @@ public static class ServiceInjection
         services.AddScoped<DashboardService>();
 
         services.AddScoped<CurrentUserService>();
+
+        services.AddScoped<
+            IPasswordHasher<User>,
+            PasswordHasher<User>>();
 
         return services;
     }

@@ -7,15 +7,21 @@ namespace Boekje.Web.Controllers;
 
 public class BudgetController : Controller
 {
-    private readonly BudgetService _budgetService;
-    private readonly CurrentUserService _currentUser;
+    private readonly BudgetService
+        _budgetService;
+
+    private readonly CurrentUserService
+        _currentUser;
 
     public BudgetController(
         BudgetService budgetService,
         CurrentUserService currentUser)
     {
-        _budgetService = budgetService;
-        _currentUser = currentUser;
+        _budgetService =
+            budgetService;
+
+        _currentUser =
+            currentUser;
     }
 
     /* =========================
@@ -24,7 +30,51 @@ public class BudgetController : Controller
 
     public IActionResult Index()
     {
-        return View();
+        if (!_currentUser.IsAuthenticated)
+        {
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        /*
+         * Get user budget
+         */
+
+        var budget =
+            _budgetService.GetFullBudget(
+                _currentUser.UserId);
+
+        /*
+         * No budget yet
+         */
+
+        if (budget == null)
+        {
+            return RedirectToAction(
+                "Add");
+        }
+
+        /*
+         * Generate advice
+         */
+
+        var advice =
+            _budgetService
+                .GenerateAdvice(
+                    budget);
+
+        ViewBag.Advice =
+            advice;
+
+        /*
+         * Temporary empty categories
+         */
+
+        ViewBag.Categories =
+            new Dictionary<string, decimal>();
+
+        return View(budget);
     }
 
     /* =========================
@@ -34,7 +84,19 @@ public class BudgetController : Controller
     [HttpGet]
     public IActionResult Add()
     {
-        return View(new Budget());
+        if (!_currentUser.IsAuthenticated)
+        {
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        var budget =
+            new Budget(
+                _currentUser.UserId,
+                0);
+
+        return View(budget);
     }
 
     /* =========================
@@ -44,7 +106,27 @@ public class BudgetController : Controller
     [HttpGet]
     public IActionResult Edit()
     {
-        return View();
+        if (!_currentUser.IsAuthenticated)
+        {
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        var budget =
+            _budgetService.GetFullBudget(
+                _currentUser.UserId);
+
+        if (budget == null)
+        {
+            return RedirectToAction(
+                "Add");
+        }
+
+        ViewBag.Categories =
+            new Dictionary<string, decimal>();
+
+        return View(budget);
     }
 
     /* =========================
@@ -52,26 +134,83 @@ public class BudgetController : Controller
     ========================= */
 
     [HttpPost]
-    public IActionResult Save(Budget model)
+    public IActionResult Save(
+        decimal income)
     {
-        var categories =
-            new Dictionary<string, decimal>();
+        if (!_currentUser.IsAuthenticated)
+        {
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        /*
+         * Create rich budget model
+         */
+
+        var budget =
+            new Budget(
+                _currentUser.UserId,
+                income);
+
+        /*
+         * Expenses
+         */
 
         foreach (var key in Request.Form.Keys)
         {
-            if (decimal.TryParse(
-                    Request.Form[key],
-                    out var value))
+            if (key.StartsWith(
+                    "expense_"))
             {
-                categories[key] = value;
+                if (decimal.TryParse(
+                        Request.Form[key],
+                        out var amount))
+                {
+                    var expense =
+                        new Expense(
+                            "General",
+                            amount,
+                            key);
+
+                    budget.AddExpense(
+                        expense);
+                }
             }
         }
 
-        _budgetService.Save(
-            model,
-            categories);
+        /*
+         * Savings
+         */
 
-        return RedirectToAction("Index");
+        foreach (var key in Request.Form.Keys)
+        {
+            if (key.StartsWith(
+                    "saving_"))
+            {
+                if (decimal.TryParse(
+                        Request.Form[key],
+                        out var amount))
+                {
+                    var saving =
+                        new Saving(
+                            amount,
+                            key);
+
+                    budget.AddSaving(
+                        saving);
+                }
+            }
+        }
+
+        /*
+         * Save budget
+         */
+
+        _budgetService.Save(
+            budget);
+
+        return RedirectToAction(
+            "Index");
     }
 
     /* =========================
@@ -81,6 +220,17 @@ public class BudgetController : Controller
     [HttpPost]
     public IActionResult Delete()
     {
-        return RedirectToAction("Index");
+        if (!_currentUser.IsAuthenticated)
+        {
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        _budgetService.Delete(
+            _currentUser.UserId);
+
+        return RedirectToAction(
+            "Index");
     }
 }

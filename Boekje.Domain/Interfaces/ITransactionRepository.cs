@@ -4,6 +4,9 @@ namespace Boekje.Domain.Interfaces;
 
 public interface ITransactionRepository
 {
-    void AddTransaction(Transaction transaction);
-    List<Transaction> GetByUser(int userId);
+    void AddTransaction(
+        Transaction transaction);
+
+    List<Transaction> GetByUser(
+        int userId);
 }

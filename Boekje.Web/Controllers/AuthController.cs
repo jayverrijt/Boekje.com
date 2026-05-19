@@ -7,11 +7,14 @@ namespace Boekje.Web.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly AuthService _authService;
+    private readonly AuthService
+        _authService;
 
-    public AuthController(AuthService authService)
+    public AuthController(
+        AuthService authService)
     {
-        _authService = authService;
+        _authService =
+            authService;
     }
 
     /* =========================
@@ -25,15 +28,19 @@ public class AuthController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(
+        LoginViewModel model)
     {
         if (!ModelState.IsValid)
+        {
             return View(model);
+        }
 
         var user =
-            await _authService.LoginAsync(
-                model.Email,
-                model.Password);
+            await _authService
+                .LoginAsync(
+                    model.Email,
+                    model.Password);
 
         if (user == null)
         {
@@ -44,9 +51,17 @@ public class AuthController : Controller
             return View(model);
         }
 
+        /*
+         * Save session
+         */
+
         HttpContext.Session.SetString(
             "UserEmail",
             user.Email);
+
+        HttpContext.Session.SetInt32(
+            "UserId",
+            user.Id);
 
         return RedirectToAction(
             "Index",
@@ -68,12 +83,20 @@ public class AuthController : Controller
         RegisterViewModel model)
     {
         if (!ModelState.IsValid)
+        {
             return View(model);
+        }
+
+        /*
+         * Register rich domain user
+         */
 
         var success =
-            await _authService.RegisterAsync(
-                model.Email,
-                model.Password);
+            await _authService
+                .RegisterAsync(
+                    model.Name,
+                    model.Email,
+                    model.Password);
 
         if (!success)
         {
@@ -84,7 +107,8 @@ public class AuthController : Controller
             return View(model);
         }
 
-        return RedirectToAction("Login");
+        return RedirectToAction(
+            "Login");
     }
 
     /* =========================
@@ -95,6 +119,7 @@ public class AuthController : Controller
     {
         HttpContext.Session.Clear();
 
-        return RedirectToAction("Login");
+        return RedirectToAction(
+            "Login");
     }
 }

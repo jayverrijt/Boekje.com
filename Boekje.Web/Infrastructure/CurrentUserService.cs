@@ -1,34 +1,49 @@
 using Microsoft.AspNetCore.Http;
-using Boekje.Domain.Interfaces;
 
-namespace Boekje.Web.Infrastructure
+namespace Boekje.Web.Infrastructure;
+
+public class CurrentUserService
 {
-    public class CurrentUserService
+    private readonly IHttpContextAccessor
+        _httpContextAccessor;
+
+    public CurrentUserService(
+        IHttpContextAccessor
+            httpContextAccessor)
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        _httpContextAccessor =
+            httpContextAccessor;
+    }
 
-        public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    public bool IsAuthenticated
+    {
+        get
         {
-            _httpContextAccessor = httpContextAccessor;
+            return !string.IsNullOrEmpty(
+                Email);
         }
+    }
 
-        public string? Email
+    public string? Email
+    {
+        get
         {
-            get
-            {
-                return _httpContextAccessor
-                    .HttpContext?
-                    .Session
-                    .GetString("UserEmail");
-            }
+            return _httpContextAccessor
+                .HttpContext?
+                .Session
+                .GetString("UserEmail");
         }
+    }
 
-        public bool IsAuthenticated
+    public int UserId
+    {
+        get
         {
-            get
-            {
-                return !string.IsNullOrEmpty(Email);
-            }
+            return _httpContextAccessor
+                       .HttpContext?
+                       .Session
+                       .GetInt32("UserId")
+                   ?? 0;
         }
     }
 }

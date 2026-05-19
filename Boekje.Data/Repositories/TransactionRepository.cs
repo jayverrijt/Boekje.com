@@ -1,72 +1,152 @@
-using System.Collections.Generic;
-using MySqlConnector;
 using Boekje.Domain.Entities;
 using Boekje.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
+using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class TransactionRepository : ITransactionRepository
+public class TransactionRepository
+    : ITransactionRepository
 {
-    private readonly string _connectionString;
+    private readonly string
+        _connectionString;
 
-    public TransactionRepository(IConfiguration config)
+    public TransactionRepository(
+        IConfiguration configuration)
     {
-        var conn = config.GetConnectionString("DefaultConnection");
+        var connectionString =
+            configuration.GetConnectionString(
+                "DefaultConnection");
 
-        if (string.IsNullOrEmpty(conn))
-            throw new Exception("Connection string not found");
-
-        _connectionString = conn;
-    }
-
-    public void AddTransaction(Transaction transaction)
-    {
-        using var conn = new MySqlConnection(_connectionString);
-        conn.Open();
-
-        var query = @"INSERT INTO transaction 
-            (user_id, amount, type, category, description) 
-            VALUES (@userId, @amount, @type, @category, @description)";
-
-        using var cmd = new MySqlCommand(query, conn);
-        cmd.Parameters.AddWithValue("@userId", transaction.UserId);
-        cmd.Parameters.AddWithValue("@amount", transaction.Amount);
-        cmd.Parameters.AddWithValue("@type", transaction.Type);
-        cmd.Parameters.AddWithValue("@category", transaction.Category);
-        cmd.Parameters.AddWithValue("@description", transaction.Description);
-
-        cmd.ExecuteNonQuery();
-    }
-
-    public List<Transaction> GetByUser(int userId)
-    {
-        var list = new List<Transaction>();
-
-        using var conn = new MySqlConnection(_connectionString);
-        conn.Open();
-
-        var query = "SELECT * FROM transaction WHERE user_id = @userId";
-
-        using var cmd = new MySqlCommand(query, conn);
-        cmd.Parameters.AddWithValue("@userId", userId);
-
-        using var reader = cmd.ExecuteReader();
-
-        while (reader.Read())
+        if (string.IsNullOrWhiteSpace(
+                connectionString))
         {
-            list.Add(new Transaction
-            {
-                Id = reader.GetInt32("id"),
-                UserId = reader.GetInt32("user_id"),
-                Amount = reader.GetDecimal("amount"),
-                Type = reader.GetString("type"),
-                Category = reader.GetString("category"),
-                Description = reader["description"]?.ToString(),
-                CreatedAt = reader.GetDateTime("created_at")
-            });
+            throw new Exception(
+                "Connection string not found.");
         }
 
-        return list;
+        _connectionString =
+            connectionString;
+    }
+
+    public void AddTransaction(
+        Transaction transaction)
+    {
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using var command =
+            new MySqlCommand(
+                @"INSERT INTO transaction
+                    (
+                        user_id,
+                        amount,
+                        type,
+                        category,
+                        description,
+                        created_at
+                    )
+                  VALUES
+                    (
+                        @userId,
+                        @amount,
+                        @type,
+                        @category,
+                        @description,
+                        @createdAt
+                    )",
+                connection);
+
+        command.Parameters.AddWithValue(
+            "@userId",
+            transaction.UserId);
+
+        command.Parameters.AddWithValue(
+            "@amount",
+            transaction.Amount);
+
+        command.Parameters.AddWithValue(
+            "@type",
+            transaction.Type);
+
+        command.Parameters.AddWithValue(
+            "@category",
+            transaction.Category);
+
+        command.Parameters.AddWithValue(
+            "@description",
+            transaction.Description);
+
+        command.Parameters.AddWithValue(
+            "@createdAt",
+            transaction.CreatedAt);
+
+        command.ExecuteNonQuery();
+    }
+
+    public List<Transaction>
+        GetByUser(int userId)
+    {
+        var transactions =
+            new List<Transaction>();
+
+        using var connection =
+            new MySqlConnection(
+                _connectionString);
+
+        connection.Open();
+
+        using (var command =
+               new MySqlCommand(
+                   @"SELECT *
+                     FROM transaction
+                     WHERE user_id = @userId
+                     ORDER BY created_at DESC",
+                   connection))
+        {
+            command.Parameters.AddWithValue(
+                "@userId",
+                userId);
+
+            using (var reader =
+                   command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var transaction =
+                        new Transaction(
+                            reader.GetInt32(
+                                "user_id"),
+
+                            reader.GetDecimal(
+                                "amount"),
+
+                            reader.GetString(
+                                "type"),
+
+                            reader.GetString(
+                                "category"),
+
+                            reader["description"]
+                                ?.ToString());
+
+                    transaction.SetId(
+                        reader.GetInt32(
+                            "id"));
+
+                    transaction.SetCreatedAt(
+                        reader.GetDateTime(
+                            "created_at"));
+
+                    transactions.Add(
+                        transaction);
+                }
+            }
+        }
+
+        return transactions;
     }
 }

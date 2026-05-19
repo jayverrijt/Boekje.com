@@ -4,10 +4,18 @@ namespace Boekje.Web.ViewModels;
 
 public class LoginViewModel
 {
-    [Required]
-    [EmailAddress]
+    [Required(
+        ErrorMessage =
+            "Email is verplicht")]
+    [EmailAddress(
+        ErrorMessage =
+            "Voer een geldig emailadres in")]
     public string Email { get; set; }
+        = "";
 
-    [Required]
+    [Required(
+        ErrorMessage =
+            "Wachtwoord is verplicht")]
     public string Password { get; set; }
+        = "";
 }
