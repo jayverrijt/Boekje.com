@@ -11,17 +11,16 @@ public class BudgetRuleEngine
     public BudgetRuleEngine(
         IEnumerable<IBudgetRule> rules)
     {
-        _rules = rules;
+        _rules = rules
+                 ?? throw new ArgumentNullException(
+                     nameof(rules));
     }
 
     public BudgetAdvice Generate(
         Budget budget)
     {
-        if (budget == null)
-        {
-            throw new Exception(
-                "Budget is required.");
-        }
+        ArgumentNullException.ThrowIfNull(
+            budget);
 
         var advice =
             new BudgetAdvice(

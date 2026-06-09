@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Boekje.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b3890ca80c557c1f72d0ee1e8b41b04bb3fb852")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da7fa5784f141775fd9e49b0dd351c9ec48c3b49")]
 [assembly: System.Reflection.AssemblyProductAttribute("Boekje.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Boekje.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

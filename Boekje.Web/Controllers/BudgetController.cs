@@ -1,7 +1,7 @@
+using System.Linq;
 using Boekje.Domain.Entities;
 using Boekje.Domain.Services;
 using Boekje.Web.Infrastructure;
-using Boekje.Web.ViewMappers;
 using Boekje.Web.ViewModels.Budget;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,21 +49,64 @@ public class BudgetController : Controller
                 "Add");
         }
 
-        var advice =
-            _budgetService
-                .GenerateAdvice(
-                    budget);
+        var totalExpenses =
+            budget.Expenses.Sum(
+                e => e.Amount);
+
+        var totalSavings =
+            budget.Savings.Sum(
+                s => s.Amount);
+
+        var model =
+            new BudgetViewModel
+            {
+                Income =
+                    budget.Income,
+
+                Expenses =
+                    budget.Expenses
+                        .Select(e =>
+                            new ExpenseViewModel
+                            {
+                                Name = e.Name,
+                                Amount = e.Amount,
+                                Type = e.Type
+                            })
+                        .ToList(),
+
+                Savings =
+                    budget.Savings
+                        .Select(s =>
+                            new SavingViewModel
+                            {
+                                Name = s.Name,
+                                Amount = s.Amount
+                            })
+                        .ToList(),
+
+                TotalExpenses =
+                    totalExpenses,
+
+                TotalSavings =
+                    totalSavings,
+
+                Remaining =
+                    budget.Income
+                    - totalExpenses
+                    - totalSavings,
+
+                IsOverBudget =
+                    budget.Income
+                    < totalExpenses
+                    + totalSavings
+            };
 
         ViewBag.Advice =
-            advice;
+            _budgetService.GenerateAdvice(
+                budget);
 
         ViewBag.Categories =
             new Dictionary<string, decimal>();
-
-        var model =
-            BudgetViewModelMapper
-                .ToViewModel(
-                    budget);
 
         return View(model);
     }
@@ -114,9 +157,32 @@ public class BudgetController : Controller
             new Dictionary<string, decimal>();
 
         var model =
-            BudgetViewModelMapper
-                .ToEditViewModel(
-                    budget);
+            new BudgetEditViewModel
+            {
+                Income =
+                    budget.Income,
+
+                Expenses =
+                    budget.Expenses
+                        .Select(e =>
+                            new ExpenseViewModel
+                            {
+                                Name = e.Name,
+                                Amount = e.Amount,
+                                Type = e.Type
+                            })
+                        .ToList(),
+
+                Savings =
+                    budget.Savings
+                        .Select(s =>
+                            new SavingViewModel
+                            {
+                                Name = s.Name,
+                                Amount = s.Amount
+                            })
+                        .ToList()
+            };
 
         return View(model);
     }

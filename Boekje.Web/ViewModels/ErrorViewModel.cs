@@ -1,4 +1,4 @@
-namespace Boekje.Web.Models;
+namespace Boekje.Web.ViewModels;
 
 public class ErrorViewModel
 {

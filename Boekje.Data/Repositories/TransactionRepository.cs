@@ -5,42 +5,45 @@ using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class TransactionRepository
-    : ITransactionRepository
-{
+public class TransactionRepository : ITransactionRepository {
     private readonly string
         _connectionString;
 
-    public TransactionRepository(
-        IConfiguration configuration)
-    {
-        var connectionString =
-            configuration.GetConnectionString(
-                "DefaultConnection");
-
-        if (string.IsNullOrWhiteSpace(
-                connectionString))
+    public TransactionRepository(IConfiguration configuration) {
+        try
         {
-            throw new Exception(
-                "Connection string not found.");
-        }
+            var connectionString =
+                configuration.GetConnectionString(
+                    "DefaultConnection");
 
-        _connectionString =
-            connectionString;
+            if (string.IsNullOrWhiteSpace(
+                    connectionString))
+            {
+                throw new Exception(
+                    "Connection string not found.");
+            }
+
+            _connectionString =
+                connectionString;
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 
-    public void AddTransaction(
-        Transaction transaction)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void AddTransaction(Transaction transaction) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"INSERT INTO transaction
+            using var command =
+                new MySqlCommand(
+                    @"INSERT INTO transaction
                     (
                         user_id,
                         amount,
@@ -58,95 +61,104 @@ public class TransactionRepository
                         @description,
                         @createdAt
                     )",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@userId",
-            transaction.UserId);
+            command.Parameters.AddWithValue(
+                "@userId",
+                transaction.UserId);
 
-        command.Parameters.AddWithValue(
-            "@amount",
-            transaction.Amount);
+            command.Parameters.AddWithValue(
+                "@amount",
+                transaction.Amount);
 
-        command.Parameters.AddWithValue(
-            "@type",
-            transaction.Type);
+            command.Parameters.AddWithValue(
+                "@type",
+                transaction.Type);
 
-        command.Parameters.AddWithValue(
-            "@category",
-            transaction.Category);
+            command.Parameters.AddWithValue(
+                "@category",
+                transaction.Category);
 
-        command.Parameters.AddWithValue(
-            "@description",
-            transaction.Description);
+            command.Parameters.AddWithValue(
+                "@description",
+                transaction.Description);
 
-        command.Parameters.AddWithValue(
-            "@createdAt",
-            transaction.CreatedAt);
+            command.Parameters.AddWithValue(
+                "@createdAt",
+                transaction.CreatedAt);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 
-    public List<Transaction>
-        GetByUser(int userId)
-    {
-        var transactions =
-            new List<Transaction>();
+    public List<Transaction> GetByUser(int userId) {
+        try
+        {
+            var transactions =
+                new List<Transaction>();
 
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using (var command =
-               new MySqlCommand(
-                   @"SELECT *
+            using (var command =
+                   new MySqlCommand(
+                       @"SELECT *
                      FROM transaction
                      WHERE user_id = @userId
                      ORDER BY created_at DESC",
-                   connection))
-        {
-            command.Parameters.AddWithValue(
-                "@userId",
-                userId);
-
-            using (var reader =
-                   command.ExecuteReader())
+                       connection))
             {
-                while (reader.Read())
+                command.Parameters.AddWithValue(
+                    "@userId",
+                    userId);
+
+                using (var reader =
+                       command.ExecuteReader())
                 {
-                    var transaction =
-                        new Transaction(
+                    while (reader.Read())
+                    {
+                        var transaction =
+                            new Transaction(
+                                reader.GetInt32(
+                                    "user_id"),
+
+                                reader.GetDecimal(
+                                    "amount"),
+
+                                reader.GetString(
+                                    "type"),
+
+                                reader.GetString(
+                                    "category"),
+
+                                reader["description"]
+                                    ?.ToString());
+
+                        transaction.SetId(
                             reader.GetInt32(
-                                "user_id"),
+                                "id"));
 
-                            reader.GetDecimal(
-                                "amount"),
+                        transaction.SetCreatedAt(
+                            reader.GetDateTime(
+                                "created_at"));
 
-                            reader.GetString(
-                                "type"),
-
-                            reader.GetString(
-                                "category"),
-
-                            reader["description"]
-                                ?.ToString());
-
-                    transaction.SetId(
-                        reader.GetInt32(
-                            "id"));
-
-                    transaction.SetCreatedAt(
-                        reader.GetDateTime(
-                            "created_at"));
-
-                    transactions.Add(
-                        transaction);
+                        transactions.Add(
+                            transaction);
+                    }
                 }
             }
-        }
 
-        return transactions;
+            return transactions;
+        } catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 }

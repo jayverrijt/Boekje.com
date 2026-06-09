@@ -4,15 +4,12 @@ using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class CategoryRepository
-    : ICategoryRepository
+public class CategoryRepository : ICategoryRepository
 {
     private readonly string
         _connectionString;
 
-    public CategoryRepository(
-        IConfiguration configuration)
-    {
+    public CategoryRepository(IConfiguration configuration) {
         _connectionString =
             configuration
                 .GetConnectionString(
@@ -21,60 +18,61 @@ public class CategoryRepository
                 "Connection string missing.");
     }
 
-    public Dictionary<string, decimal>
-        GetByBudget(
-            int budgetId)
-    {
-        var categories =
-            new Dictionary<string, decimal>();
+    public Dictionary<string, decimal> GetByBudget(int budgetId) {
+        try
+        {
+            var categories =
+                new Dictionary<string, decimal>();
 
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"SELECT *
+            using var command =
+                new MySqlCommand(
+                    @"SELECT *
                   FROM category
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        using var reader =
-            command.ExecuteReader();
+            using var reader =
+                command.ExecuteReader();
 
-        while (reader.Read())
+            while (reader.Read())
+            {
+                categories.Add(
+                    reader.GetString(
+                        "name"),
+
+                    reader.GetDecimal(
+                        "amount"));
+            }
+
+            return categories;
+        } catch(MySqlException ex)
         {
-            categories.Add(
-                reader.GetString(
-                    "name"),
-
-                reader.GetDecimal(
-                    "amount"));
+            throw new InvalidOperationException(ex.Message);
         }
-
-        return categories;
     }
 
-    public void Insert(
-        int budgetId,
-        string name,
-        decimal amount)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void Insert(int budgetId, string name, decimal amount) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"INSERT INTO category
+            using var command =
+                new MySqlCommand(
+                    @"INSERT INTO category
                     (
                         budget_id,
                         name,
@@ -86,42 +84,51 @@ public class CategoryRepository
                         @name,
                         @amount
                     )",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        command.Parameters.AddWithValue(
-            "@name",
-            name);
+            command.Parameters.AddWithValue(
+                "@name",
+                name);
 
-        command.Parameters.AddWithValue(
-            "@amount",
-            amount);
+            command.Parameters.AddWithValue(
+                "@amount",
+                amount);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        } catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Failed to insert into Category",ex);
+        }
     }
 
-    public void DeleteByBudget(
-        int budgetId)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void DeleteByBudget(int budgetId) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"DELETE FROM category
+            using var command =
+                new MySqlCommand(
+                    @"DELETE FROM category
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Failed to delete category from budget",ex);
+        }
     }
 }
