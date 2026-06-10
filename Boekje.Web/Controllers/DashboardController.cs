@@ -1,35 +1,53 @@
-using System.Threading.Tasks;
 using Boekje.Domain.Services;
-using Boekje.Web.ViewModels;
+using Boekje.Web.ViewModels.Dashboard;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+namespace Boekje.Web.Controllers;
+
 public class DashboardController : Controller
 {
-    private readonly DashboardService _dashboardService;
+    private readonly DashboardService
+        _dashboardService;
 
-    public DashboardController(DashboardService dashboardService)
+    public DashboardController(
+        DashboardService dashboardService)
     {
-        _dashboardService = dashboardService;
+        _dashboardService =
+            dashboardService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var email = HttpContext.Session.GetString("UserEmail");
+        var email =
+            HttpContext.Session
+                .GetString(
+                    "UserEmail");
 
         if (email == null)
-            return RedirectToAction("Login", "Auth");
-
-        var data = await _dashboardService.GetDashboardAsync(email);
-
-        var vm = new DashboardViewModel
         {
-            Income = data.Income,
-            Expenses = data.Expenses,
-            Savings = data.Savings,
-            Total = data.Total,
-            Month = data.Month
-        };
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        var data =
+            await _dashboardService
+                .GetDashboardAsync(
+                    email);
+
+        var vm =
+            new DashboardViewModel
+            {
+                TotalIncome =
+                    data.Income,
+
+                TotalExpenses =
+                    data.Expenses,
+
+                Remaining =
+                    data.Total
+            };
 
         return View(vm);
     }

@@ -1,6 +1,8 @@
+using System.Linq;
 using Boekje.Domain.Entities;
 using Boekje.Domain.Services;
 using Boekje.Web.Infrastructure;
+using Boekje.Web.ViewModels.Budget;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Boekje.Web.Controllers;
@@ -37,17 +39,9 @@ public class BudgetController : Controller
                 "Auth");
         }
 
-        /*
-         * Get user budget
-         */
-
         var budget =
             _budgetService.GetFullBudget(
                 _currentUser.UserId);
-
-        /*
-         * No budget yet
-         */
 
         if (budget == null)
         {
@@ -55,26 +49,66 @@ public class BudgetController : Controller
                 "Add");
         }
 
-        /*
-         * Generate advice
-         */
+        var totalExpenses =
+            budget.Expenses.Sum(
+                e => e.Amount);
 
-        var advice =
-            _budgetService
-                .GenerateAdvice(
-                    budget);
+        var totalSavings =
+            budget.Savings.Sum(
+                s => s.Amount);
+
+        var model =
+            new BudgetViewModel
+            {
+                Income =
+                    budget.Income,
+
+                Expenses =
+                    budget.Expenses
+                        .Select(e =>
+                            new ExpenseViewModel
+                            {
+                                Name = e.Name,
+                                Amount = e.Amount,
+                                Type = e.Type
+                            })
+                        .ToList(),
+
+                Savings =
+                    budget.Savings
+                        .Select(s =>
+                            new SavingViewModel
+                            {
+                                Name = s.Name,
+                                Amount = s.Amount
+                            })
+                        .ToList(),
+
+                TotalExpenses =
+                    totalExpenses,
+
+                TotalSavings =
+                    totalSavings,
+
+                Remaining =
+                    budget.Income
+                    - totalExpenses
+                    - totalSavings,
+
+                IsOverBudget =
+                    budget.Income
+                    < totalExpenses
+                    + totalSavings
+            };
 
         ViewBag.Advice =
-            advice;
-
-        /*
-         * Temporary empty categories
-         */
+            _budgetService.GenerateAdvice(
+                budget);
 
         ViewBag.Categories =
             new Dictionary<string, decimal>();
 
-        return View(budget);
+        return View(model);
     }
 
     /* =========================
@@ -91,12 +125,8 @@ public class BudgetController : Controller
                 "Auth");
         }
 
-        var budget =
-            new Budget(
-                _currentUser.UserId,
-                0);
-
-        return View(budget);
+        return View(
+            new BudgetEditViewModel());
     }
 
     /* =========================
@@ -126,7 +156,35 @@ public class BudgetController : Controller
         ViewBag.Categories =
             new Dictionary<string, decimal>();
 
-        return View(budget);
+        var model =
+            new BudgetEditViewModel
+            {
+                Income =
+                    budget.Income,
+
+                Expenses =
+                    budget.Expenses
+                        .Select(e =>
+                            new ExpenseViewModel
+                            {
+                                Name = e.Name,
+                                Amount = e.Amount,
+                                Type = e.Type
+                            })
+                        .ToList(),
+
+                Savings =
+                    budget.Savings
+                        .Select(s =>
+                            new SavingViewModel
+                            {
+                                Name = s.Name,
+                                Amount = s.Amount
+                            })
+                        .ToList()
+            };
+
+        return View(model);
     }
 
     /* =========================
@@ -135,7 +193,7 @@ public class BudgetController : Controller
 
     [HttpPost]
     public IActionResult Save(
-        decimal income)
+        BudgetEditViewModel model)
     {
         if (!_currentUser.IsAuthenticated)
         {
@@ -144,67 +202,42 @@ public class BudgetController : Controller
                 "Auth");
         }
 
-        /*
-         * Create rich budget model
-         */
+        if (!ModelState.IsValid)
+        {
+            return View(
+                "Edit",
+                model);
+        }
 
         var budget =
             new Budget(
                 _currentUser.UserId,
-                income);
+                model.Income);
 
-        /*
-         * Expenses
-         */
-
-        foreach (var key in Request.Form.Keys)
+        foreach (var expenseModel
+                 in model.Expenses)
         {
-            if (key.StartsWith(
-                    "expense_"))
-            {
-                if (decimal.TryParse(
-                        Request.Form[key],
-                        out var amount))
-                {
-                    var expense =
-                        new Expense(
-                            "General",
-                            amount,
-                            key);
+            var expense =
+                new Expense(
+                    expenseModel.Type,
+                    expenseModel.Amount,
+                    expenseModel.Name);
 
-                    budget.AddExpense(
-                        expense);
-                }
-            }
+            budget.AddExpense(
+                expense);
         }
 
-        /*
-         * Savings
-         */
-
-        foreach (var key in Request.Form.Keys)
+        foreach (var savingModel
+                 in model.Savings)
         {
-            if (key.StartsWith(
-                    "saving_"))
-            {
-                if (decimal.TryParse(
-                        Request.Form[key],
-                        out var amount))
-                {
-                    var saving =
-                        new Saving(
-                            amount,
-                            key);
+            var saving =
+                new Saving(
+                    savingModel.Amount,
+                    savingModel.Name);
 
-                    budget.AddSaving(
-                        saving);
-                }
-            }
+            budget.AddSaving(
+                saving);
         }
-
-        /*
-         * Save budget
-         */
 
         _budgetService.Save(
             budget);

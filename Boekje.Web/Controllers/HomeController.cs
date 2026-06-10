@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Boekje.Web.Models;
+using Boekje.Web.ViewModels;
 using Microsoft.Extensions.Logging;
 
 namespace Boekje.Web.Controllers;

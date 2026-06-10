@@ -30,14 +30,14 @@ public class AuthService
         if (string.IsNullOrWhiteSpace(
                 email))
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "Email is required.");
         }
 
         if (string.IsNullOrWhiteSpace(
                 password))
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "Password is required.");
         }
 
@@ -71,21 +71,21 @@ public class AuthService
         if (string.IsNullOrWhiteSpace(
                 name))
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "Name is required.");
         }
 
         if (string.IsNullOrWhiteSpace(
                 email))
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "Email is required.");
         }
 
         if (string.IsNullOrWhiteSpace(
                 password))
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "Password is required.");
         }
 

@@ -5,76 +5,83 @@ using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class SavingRepository
-    : ISavingRepository
-{
+public class SavingRepository : ISavingRepository {
     private readonly string
         _connectionString;
 
-    public SavingRepository(
-        IConfiguration configuration)
-    {
-        _connectionString =
-            configuration
-                .GetConnectionString(
-                    "DefaultConnection")
-            ?? throw new Exception(
-                "Connection string missing.");
+    public SavingRepository(IConfiguration configuration) {
+        try
+        {
+            _connectionString =
+                configuration
+                    .GetConnectionString(
+                        "DefaultConnection")
+                ?? throw new Exception(
+                    "Connection string missing.");
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 
-    public List<Saving> GetByBudget(
-        int budgetId)
-    {
-        var savings =
-            new List<Saving>();
+    public List<Saving> GetByBudget(int budgetId) {
+        try
+        {
+            var savings =
+                new List<Saving>();
 
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"SELECT *
+            using var command =
+                new MySqlCommand(
+                    @"SELECT *
                   FROM saving
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        using var reader =
-            command.ExecuteReader();
+            using var reader =
+                command.ExecuteReader();
 
-        while (reader.Read())
-        {
-            savings.Add(
-                new Saving(
-                    reader.GetDecimal(
-                        "amount"),
+            while (reader.Read())
+            {
+                savings.Add(
+                    new Saving(
+                        reader.GetDecimal(
+                            "amount"),
 
-                    reader.GetString(
-                        "name")));
+                        reader.GetString(
+                            "name")));
+            }
+
+            return savings;
         }
-
-        return savings;
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 
-    public void Insert(
-        int budgetId,
-        Saving saving)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void Insert(int budgetId, Saving saving) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"INSERT INTO saving
+            using var command =
+                new MySqlCommand(
+                    @"INSERT INTO saving
                     (
                         budget_id,
                         amount,
@@ -86,42 +93,51 @@ public class SavingRepository
                         @amount,
                         @name
                     )",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        command.Parameters.AddWithValue(
-            "@amount",
-            saving.Amount);
+            command.Parameters.AddWithValue(
+                "@amount",
+                saving.Amount);
 
-        command.Parameters.AddWithValue(
-            "@name",
-            saving.Name);
+            command.Parameters.AddWithValue(
+                "@name",
+                saving.Name);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 
-    public void DeleteByBudget(
-        int budgetId)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void DeleteByBudget(int budgetId) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"DELETE FROM saving
+            using var command =
+                new MySqlCommand(
+                    @"DELETE FROM saving
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        }
+        catch (MySqlException ex) {
+            throw new InvalidOperationException(ex.Message);
+        }
     }
 }

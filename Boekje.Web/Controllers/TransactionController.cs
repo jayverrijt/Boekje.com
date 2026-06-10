@@ -1,22 +1,51 @@
-using Microsoft.AspNetCore.Mvc;
 using Boekje.Domain.Services;
+using Boekje.Web.ViewModels.Transaction;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Boekje.Web.Controllers;
 
 public class TransactionController : Controller
 {
-    private readonly TransactionService _service;
+    private readonly TransactionService
+        _service;
 
-    public TransactionController(TransactionService service)
+    public TransactionController(
+        TransactionService service)
     {
         _service = service;
     }
 
     [HttpPost]
-    public IActionResult Add(decimal amount, string category, string description)
+    public IActionResult Add(
+        AddTransactionViewModel model)
     {
-        int userId = int.Parse(HttpContext.Session.GetString("UserId"));
+        if (!ModelState.IsValid)
+        {
+            return RedirectToAction(
+                "Index",
+                "Dashboard");
+        }
 
-        _service.AddExpense(userId, amount, category, description);
+        var userId =
+            HttpContext.Session
+                .GetInt32(
+                    "UserId");
 
-        return RedirectToAction("Index", "Home");
+        if (userId == null)
+        {
+            return RedirectToAction(
+                "Login",
+                "Auth");
+        }
+
+        _service.AddExpense(
+            userId.Value,
+            model.Amount,
+            model.Category,
+            model.Description);
+
+        return RedirectToAction(
+            "Index",
+            "Dashboard");
     }
 }

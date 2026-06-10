@@ -6,6 +6,7 @@ Boekje.Data/out/
 Boekje.Web/bin/
 Boekje.Web/obj/
 Boekje.Web/out/
+Boekje.Web/.env
 
 Boekje.Domain/bin/
 Boekje.Domain/obj/

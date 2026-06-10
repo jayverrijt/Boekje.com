@@ -5,15 +5,11 @@ using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class BudgetRepository
-    : IBudgetRepository
-{
+public class BudgetRepository : IBudgetRepository {
     private readonly string
         _connectionString;
 
-    public BudgetRepository(
-        IConfiguration configuration)
-    {
+    public BudgetRepository(IConfiguration configuration) {
         var connectionString =
             configuration.GetConnectionString(
                 "DefaultConnection");
@@ -21,8 +17,8 @@ public class BudgetRepository
         if (string.IsNullOrWhiteSpace(
                 connectionString))
         {
-            throw new Exception(
-                "Connection string not found.");
+            throw new InvalidOperationException(
+                "DefaultConnection is not configured.");
         }
 
         _connectionString =
@@ -30,139 +26,127 @@ public class BudgetRepository
     }
 
     public Budget? GetByUser(
-        int userId)
+       int userId)
     {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
-
-        connection.Open();
-
-        Budget? budget = null;
-
-        /*
-         * GET BUDGET
-         */
-
-        using (var budgetCommand =
-               new MySqlCommand(
-                   @"SELECT *
-                     FROM budget
-                     WHERE user_id = @userId",
-                   connection))
+        try
         {
-            budgetCommand.Parameters.AddWithValue(
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
+
+            connection.Open();
+
+            using var command =
+                new MySqlCommand(
+                    @"SELECT id,
+                             user_id,
+                             income
+                      FROM budget
+                      WHERE user_id = @userId;
+    
+                      SELECT e.type,
+                             e.amount,
+                             e.name
+                      FROM expense e
+                      INNER JOIN budget b
+                          ON e.budget_id = b.id
+                      WHERE b.user_id = @userId;
+    
+                      SELECT s.amount,
+                             s.name
+                      FROM saving s
+                      INNER JOIN budget b
+                          ON s.budget_id = b.id
+                      WHERE b.user_id = @userId;",
+                    connection);
+
+            command.Parameters.AddWithValue(
                 "@userId",
                 userId);
 
-            using (var reader =
-                   budgetCommand.ExecuteReader())
-            {
-                if (!reader.Read())
-                {
-                    return null;
-                }
+            using var reader =
+                command.ExecuteReader();
 
-                budget =
-                    new Budget(
-                        reader.GetInt32(
-                            "user_id"),
+            /*
+             * BUDGET
+             */
+
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            var budget =
+                new Budget(
+                    reader.GetInt32(
+                        "user_id"),
+
+                    reader.GetDecimal(
+                        "income"));
+
+            budget.SetId(
+                reader.GetInt32(
+                    "id"));
+
+            /*
+             * EXPENSES
+             */
+
+            reader.NextResult();
+
+            while (reader.Read())
+            {
+                budget.AddExpense(
+                    new Expense(
+                        reader.GetString(
+                            "type"),
 
                         reader.GetDecimal(
-                            "income"));
+                            "amount"),
 
-                budget.SetId(
-                    reader.GetInt32(
-                        "id"));
+                        reader.GetString(
+                            "name")));
             }
-        }
 
-        /*
-         * GET EXPENSES
-         */
+            /*
+             * SAVINGS
+             */
 
-        using (var expenseCommand =
-               new MySqlCommand(
-                   @"SELECT *
-                     FROM expense
-                     WHERE budget_id = @budgetId",
-                   connection))
-        {
-            expenseCommand.Parameters.AddWithValue(
-                "@budgetId",
-                budget!.Id);
+            reader.NextResult();
 
-            using (var expenseReader =
-                   expenseCommand.ExecuteReader())
+            while (reader.Read())
             {
-                while (expenseReader.Read())
-                {
-                    var expense =
-                        new Expense(
-                            expenseReader.GetString(
-                                "type"),
+                budget.AddSaving(
+                    new Saving(
+                        reader.GetDecimal(
+                            "amount"),
 
-                            expenseReader.GetDecimal(
-                                "amount"),
-
-                            expenseReader.GetString(
-                                "name"));
-
-                    budget.AddExpense(
-                        expense);
-                }
+                        reader.GetString(
+                            "name")));
             }
+
+            return budget;
         }
-
-        /*
-         * GET SAVINGS
-         */
-
-        using (var savingCommand =
-               new MySqlCommand(
-                   @"SELECT *
-                     FROM saving
-                     WHERE budget_id = @budgetId",
-                   connection))
+        catch (MySqlException ex)
         {
-            savingCommand.Parameters.AddWithValue(
-                "@budgetId",
-                budget.Id);
-
-            using (var savingReader =
-                   savingCommand.ExecuteReader())
-            {
-                while (savingReader.Read())
-                {
-                    var saving =
-                        new Saving(
-                            savingReader.GetDecimal(
-                                "amount"),
-
-                            savingReader.GetString(
-                                "name"));
-
-                    budget.AddSaving(
-                        saving);
-                }
-            }
+            throw new InvalidOperationException(
+                "Failed to load budget.",
+                ex);
         }
-
-        return budget;
     }
 
-    public int CreateBudget(
-        Budget budget)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public int CreateBudget(Budget budget) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"INSERT INTO budget
+            using var command =
+                new MySqlCommand(
+                    @"INSERT INTO budget
                     (
                         user_id,
                         income
@@ -174,287 +158,290 @@ public class BudgetRepository
                     );
 
                   SELECT LAST_INSERT_ID();",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@userId",
-            budget.UserId);
+            command.Parameters.AddWithValue(
+                "@userId",
+                budget.UserId);
 
-        command.Parameters.AddWithValue(
-            "@income",
-            budget.Income);
+            command.Parameters.AddWithValue(
+                "@income",
+                budget.Income);
 
-        return Convert.ToInt32(
-            command.ExecuteScalar());
+            return Convert.ToInt32(
+                command.ExecuteScalar());
+        } catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                "Failed to create budget.",
+                ex);
+        }
     }
 
-    public void InsertExpenses(
-        int budgetId,
-        IReadOnlyList<Expense> expenses)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
-
-        connection.Open();
-
-        foreach (var expense in expenses)
+    public void InsertExpenses(int budgetId, IReadOnlyList<Expense> expenses) {
+        try
         {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
+
+            connection.Open();
+
             using var command =
                 new MySqlCommand(
                     @"INSERT INTO expense
-                        (
-                            budget_id,
-                            type,
-                            amount,
-                            name
-                        )
-                      VALUES
-                        (
-                            @budgetId,
-                            @type,
-                            @amount,
-                            @name
-                        )",
+                    (
+                        budget_id,
+                        type,
+                        amount,
+                        name
+                    )
+                  VALUES
+                    (
+                        @budgetId,
+                        @type,
+                        @amount,
+                        @name
+                    )",
                     connection);
 
             command.Parameters.AddWithValue(
                 "@budgetId",
                 budgetId);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@type",
-                expense.Type);
+                MySqlDbType.VarChar);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@amount",
-                expense.Amount);
+                MySqlDbType.Decimal);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@name",
-                expense.Name);
+                MySqlDbType.VarChar);
 
-            command.ExecuteNonQuery();
+            foreach (var expense in expenses)
+            {
+                command.Parameters["@type"].Value =
+                    expense.Type;
+
+                command.Parameters["@amount"].Value =
+                    expense.Amount;
+
+                command.Parameters["@name"].Value =
+                    expense.Name;
+
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Failed to insert expenses.", ex);
         }
     }
 
-    public void InsertSavings(
-        int budgetId,
-        IReadOnlyList<Saving> savings)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
-
-        connection.Open();
-
-        foreach (var saving in savings)
+    public void InsertSavings(int budgetId, IReadOnlyList<Saving> savings) {
+        try
         {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
+
+            connection.Open();
+
             using var command =
                 new MySqlCommand(
                     @"INSERT INTO saving
-                        (
-                            budget_id,
-                            amount,
-                            name
-                        )
-                      VALUES
-                        (
-                            @budgetId,
-                            @amount,
-                            @name
-                        )",
+                    (
+                        budget_id,
+                        amount,
+                        name
+                    )
+                  VALUES
+                    (
+                        @budgetId,
+                        @amount,
+                        @name
+                    )",
                     connection);
 
             command.Parameters.AddWithValue(
                 "@budgetId",
                 budgetId);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@amount",
-                saving.Amount);
+                MySqlDbType.Decimal);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@name",
-                saving.Name);
+                MySqlDbType.VarChar);
 
-            command.ExecuteNonQuery();
+            foreach (var saving in savings)
+            {
+                command.Parameters["@amount"].Value =
+                    saving.Amount;
+
+                command.Parameters["@name"].Value =
+                    saving.Name;
+
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Could not insert to savings .", ex);
         }
     }
 
-    public void InsertCategories(
-        int budgetId,
-        Dictionary<string, decimal>
-            categories)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
-
-        connection.Open();
-
-        foreach (var category in categories)
+    public void InsertCategories(int budgetId, Dictionary<string, decimal> categories) {
+        try
         {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
+
+            connection.Open();
+
             using var command =
                 new MySqlCommand(
                     @"INSERT INTO category
-                        (
-                            budget_id,
-                            name,
-                            amount
-                        )
-                      VALUES
-                        (
-                            @budgetId,
-                            @name,
-                            @amount
-                        )",
+                    (
+                        budget_id,
+                        name,
+                        amount
+                    )
+                  VALUES
+                    (
+                        @budgetId,
+                        @name,
+                        @amount
+                    )",
                     connection);
 
             command.Parameters.AddWithValue(
                 "@budgetId",
                 budgetId);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@name",
-                category.Key);
+                MySqlDbType.VarChar);
 
-            command.Parameters.AddWithValue(
+            command.Parameters.Add(
                 "@amount",
-                category.Value);
+                MySqlDbType.Decimal);
 
-            command.ExecuteNonQuery();
+            foreach (var category in categories)
+            {
+                command.Parameters["@name"].Value =
+                    category.Key;
+
+                command.Parameters["@amount"].Value =
+                    category.Value;
+
+                command.ExecuteNonQuery();
+            }
+        } catch (Exception ex)
+        {
+            throw new InvalidOperationException("Could not insert categories", ex);
         }
     }
 
-    public Dictionary<string, decimal>
-        GetCategories(
-            int budgetId)
-    {
-        var categories =
-            new Dictionary<string, decimal>();
+    public Dictionary<string, decimal> GetCategories(
+            int budgetId) { try {
+            var categories =
+                new Dictionary<string, decimal>();
 
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"SELECT *
+            using var command =
+                new MySqlCommand(
+                    @"SELECT name,
+                         amount
                   FROM category
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
-
-        using var reader =
-            command.ExecuteReader();
-
-        while (reader.Read())
-        {
-            categories.Add(
-                reader.GetString(
-                    "name"),
-
-                reader.GetDecimal(
-                    "amount"));
-        }
-
-        return categories;
-    }
-
-    public void DeleteByBudgetId(
-        int budgetId)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
-
-        connection.Open();
-
-        /*
-         * DELETE EXPENSES
-         */
-
-        using (var deleteExpenses =
-               new MySqlCommand(
-                   @"DELETE FROM expense
-                     WHERE budget_id = @budgetId",
-                   connection))
-        {
-            deleteExpenses.Parameters.AddWithValue(
+            command.Parameters.AddWithValue(
                 "@budgetId",
                 budgetId);
 
-            deleteExpenses.ExecuteNonQuery();
+            using var reader =
+                command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                categories.Add(
+                    reader.GetString(
+                        "name"),
+
+                    reader.GetDecimal(
+                        "amount"));
+            }
+
+            return categories;
         }
-
-        /*
-         * DELETE SAVINGS
-         */
-
-        using (var deleteSavings =
-               new MySqlCommand(
-                   @"DELETE FROM saving
-                     WHERE budget_id = @budgetId",
-                   connection))
+        catch (MySqlException ex)
         {
-            deleteSavings.Parameters.AddWithValue(
-                "@budgetId",
-                budgetId);
-
-            deleteSavings.ExecuteNonQuery();
-        }
-
-        /*
-         * DELETE CATEGORIES
-         */
-
-        using (var deleteCategories =
-               new MySqlCommand(
-                   @"DELETE FROM category
-                     WHERE budget_id = @budgetId",
-                   connection))
-        {
-            deleteCategories.Parameters.AddWithValue(
-                "@budgetId",
-                budgetId);
-
-            deleteCategories.ExecuteNonQuery();
-        }
-
-        /*
-         * DELETE BUDGET
-         */
-
-        using (var deleteBudget =
-               new MySqlCommand(
-                   @"DELETE FROM budget
-                     WHERE id = @budgetId",
-                   connection))
-        {
-            deleteBudget.Parameters.AddWithValue(
-                "@budgetId",
-                budgetId);
-
-            deleteBudget.ExecuteNonQuery();
+            throw new InvalidOperationException(ex.Message);
         }
     }
 
-    public void DeleteByUserId(
-        int userId)
-    {
-        var budget =
-            GetByUser(userId);
-
-        if (budget != null)
+    public void DeleteByBudgetId(int budgetId) {
+        try
         {
-            DeleteByBudgetId(
-                budget.Id);
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
+
+            connection.Open();
+
+            using var command =
+                new MySqlCommand(
+                    @"DELETE FROM expense
+                  WHERE budget_id = @budgetId;
+
+                  DELETE FROM saving
+                  WHERE budget_id = @budgetId;
+
+                  DELETE FROM category
+                  WHERE budget_id = @budgetId;
+
+                  DELETE FROM budget
+                  WHERE id = @budgetId;",
+                    connection);
+
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
+
+            command.ExecuteNonQuery();
+        } catch (MySqlException ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
+    }
+
+    public void DeleteByUserId(int userId) {
+        try
+        {
+            var budget =
+                GetByUser(
+                    userId);
+
+            if (budget != null)
+            {
+                DeleteByBudgetId(
+                    budget.Id);
+            }
+        } catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Could not delete budget", ex);
         }
     }
 }

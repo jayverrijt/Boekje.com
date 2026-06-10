@@ -5,15 +5,11 @@ using MySqlConnector;
 
 namespace Boekje.Data.Repositories;
 
-public class ExpenseRepository
-    : IExpenseRepository
-{
+public class ExpenseRepository : IExpenseRepository {
     private readonly string
         _connectionString;
 
-    public ExpenseRepository(
-        IConfiguration configuration)
-    {
+    public ExpenseRepository(IConfiguration configuration) {
         _connectionString =
             configuration
                 .GetConnectionString(
@@ -22,62 +18,64 @@ public class ExpenseRepository
                 "Connection string missing.");
     }
 
-    public List<Expense> GetByBudget(
-        int budgetId)
-    {
-        var expenses =
-            new List<Expense>();
+    public List<Expense> GetByBudget(int budgetId) {
+        try
+        {
+            var expenses =
+                new List<Expense>();
 
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"SELECT *
+            using var command =
+                new MySqlCommand(
+                    @"SELECT *
                   FROM expense
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        using var reader =
-            command.ExecuteReader();
+            using var reader =
+                command.ExecuteReader();
 
-        while (reader.Read())
+            while (reader.Read())
+            {
+                expenses.Add(
+                    new Expense(
+                        reader.GetString(
+                            "type"),
+
+                        reader.GetDecimal(
+                            "amount"),
+
+                        reader.GetString(
+                            "name")));
+            }
+            return expenses;
+        } catch  (MySqlException ex)
         {
-            expenses.Add(
-                new Expense(
-                    reader.GetString(
-                        "type"),
-
-                    reader.GetDecimal(
-                        "amount"),
-
-                    reader.GetString(
-                        "name")));
+            throw new InvalidOperationException("Failed to get expenses by budget", ex);
         }
-
-        return expenses;
     }
 
-    public void Insert(
-        int budgetId,
-        Expense expense)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void Insert(int budgetId, Expense expense) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"INSERT INTO expense
+            using var command =
+                new MySqlCommand(
+                    @"INSERT INTO expense
                     (
                         budget_id,
                         type,
@@ -91,46 +89,54 @@ public class ExpenseRepository
                         @amount,
                         @name
                     )",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        command.Parameters.AddWithValue(
-            "@type",
-            expense.Type);
+            command.Parameters.AddWithValue(
+                "@type",
+                expense.Type);
 
-        command.Parameters.AddWithValue(
-            "@amount",
-            expense.Amount);
+            command.Parameters.AddWithValue(
+                "@amount",
+                expense.Amount);
 
-        command.Parameters.AddWithValue(
-            "@name",
-            expense.Name);
+            command.Parameters.AddWithValue(
+                "@name",
+                expense.Name);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        } catch(MySqlException ex) {
+            throw new InvalidOperationException("Failed to insert expense", ex);
+        }
     }
 
-    public void DeleteByBudget(
-        int budgetId)
-    {
-        using var connection =
-            new MySqlConnection(
-                _connectionString);
+    public void DeleteByBudget(int budgetId) {
+        try
+        {
+            using var connection =
+                new MySqlConnection(
+                    _connectionString);
 
-        connection.Open();
+            connection.Open();
 
-        using var command =
-            new MySqlCommand(
-                @"DELETE FROM expense
+            using var command =
+                new MySqlCommand(
+                    @"DELETE FROM expense
                   WHERE budget_id = @budgetId",
-                connection);
+                    connection);
 
-        command.Parameters.AddWithValue(
-            "@budgetId",
-            budgetId);
+            command.Parameters.AddWithValue(
+                "@budgetId",
+                budgetId);
 
-        command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
+        }
+        catch (MySqlException ex)
+        {
+            throw new InvalidOperationException("Failed to delete expenses by budget", ex);
+        }
     }
 }

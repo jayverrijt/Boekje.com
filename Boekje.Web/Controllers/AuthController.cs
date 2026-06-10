@@ -2,6 +2,7 @@ using Boekje.Domain.Services;
 using Boekje.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Boekje.Web.ViewModels.Auth;
 
 namespace Boekje.Web.Controllers;
 
