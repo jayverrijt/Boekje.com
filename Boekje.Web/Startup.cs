@@ -1,9 +1,10 @@
 using Boekje.Domain.Entities;
 using Boekje.Domain.Interfaces;
 using Boekje.Domain.Rules;
-using Boekje.Domain.Services;
 using Boekje.Web.DependencyInjection;
+using Boekje.Web.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace Boekje.Web;
 
@@ -41,6 +42,16 @@ public class Startup
         services.AddScoped<
             IBudgetRule,
             SavingsBudgetRule>();
+
+        services.Configure<BudgetRuleSettings>(
+            Configuration.GetSection(
+                "BudgetRules"));
+
+        services.AddSingleton<
+            IBudgetRuleSettings>(
+            sp => sp.GetRequiredService<
+                    IOptions<BudgetRuleSettings>>()
+                .Value);
 
         services.AddApplicationServices();
 

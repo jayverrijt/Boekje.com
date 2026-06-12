@@ -8,12 +8,21 @@ public class BudgetRuleEngine
     private readonly IEnumerable<IBudgetRule>
         _rules;
 
+    private readonly IBudgetRuleSettings
+        _settings;
+
     public BudgetRuleEngine(
-        IEnumerable<IBudgetRule> rules)
+        IEnumerable<IBudgetRule> rules,
+        IBudgetRuleSettings settings)
     {
-        _rules = rules
-                 ?? throw new ArgumentNullException(
-                     nameof(rules));
+        ArgumentNullException.ThrowIfNull(
+            rules);
+
+        ArgumentNullException.ThrowIfNull(
+            settings);
+
+        _rules = rules;
+        _settings = settings;
     }
 
     public BudgetAdvice Generate(
@@ -24,8 +33,11 @@ public class BudgetRuleEngine
 
         var advice =
             new BudgetAdvice(
-                budget.Income * 0.30m,
-                budget.Income * 0.10m);
+                budget.Income *
+                _settings.MaxRentPercentage,
+
+                budget.Income *
+                _settings.MinSavingsPercentage);
 
         foreach (var rule in _rules)
         {
@@ -37,7 +49,7 @@ public class BudgetRuleEngine
         if (budget.IsOverBudget())
         {
             advice.AddWarning(
-                "Budget is negatief.");
+                "Budget is in de min (Negatief).");
         }
 
         return advice;

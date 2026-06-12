@@ -1,26 +1,26 @@
-using Boekje.Domain.Entities;
-using Boekje.Domain.Interfaces;
+    using Boekje.Domain.Entities;
+    using Boekje.Domain.Interfaces;
 
-namespace Boekje.Domain.Rules;
+    namespace Boekje.Domain.Rules;
 
-public class RentBudgetRule : IBudgetRule
-{
-    public void Evaluate(
-        Budget budget,
-        BudgetAdvice advice)
+    public class RentBudgetRule : IBudgetRule
     {
-        foreach (var expense
-                 in budget.Expenses)
+        public void Evaluate(
+            Budget budget,
+            BudgetAdvice advice)
         {
-            if (expense.Type == "Huur")
+            foreach (var expense
+                     in budget.Expenses)
             {
-                if (expense.Amount >
-                    advice.RecommendedMaxRent)
+                if (expense.Type == "Huur")
                 {
-                    advice.AddWarning(
-                        "Huur is hoger dan aanbevolen.");
+                    if (expense.Amount >
+                        advice.RecommendedMaxRent)
+                    {
+                        advice.AddWarning(
+                            "Huur is hoger dan aanbevolen.");
+                    }
                 }
             }
         }
     }
-}
